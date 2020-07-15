@@ -2,12 +2,12 @@ package com.ilegra.laa.models;
 
 import com.ilegra.laa.builders.LogRequestBuilder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class LogRequest {
 
   private String url;
-  private LocalDateTime date;
+  private Instant date;
   private String clientId;
   private AwsRegion region;
 
@@ -15,7 +15,7 @@ public class LogRequest {
     return new LogRequestBuilder();
   }
 
-  public LogRequest(String url, LocalDateTime date, String clientId, AwsRegion region) {
+  public LogRequest(String url, Instant date, String clientId, AwsRegion region) {
     this.url = url;
     this.date = date;
     this.clientId = clientId;
@@ -26,7 +26,7 @@ public class LogRequest {
     return url;
   }
 
-  public LocalDateTime getDate() {
+  public Instant getDate() {
     return date;
   }
 

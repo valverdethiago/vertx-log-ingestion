@@ -3,11 +3,11 @@ package com.ilegra.laa.builders;
 import com.ilegra.laa.models.AwsRegion;
 import com.ilegra.laa.models.LogRequest;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class LogRequestBuilder {
     private String url;
-    private LocalDateTime date;
+    private Instant date;
     private String clientId;
     private AwsRegion region;
 
@@ -16,7 +16,7 @@ public class LogRequestBuilder {
         return this;
     }
 
-    public LogRequestBuilder setDate(LocalDateTime date) {
+    public LogRequestBuilder setDate(Instant date) {
         this.date = date;
         return this;
     }

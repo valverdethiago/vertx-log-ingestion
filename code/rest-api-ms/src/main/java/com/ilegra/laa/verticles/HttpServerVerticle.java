@@ -2,6 +2,7 @@ package com.ilegra.laa.verticles;
 
 import com.ilegra.laa.builders.LogRequestBuilder;
 import com.ilegra.laa.models.AwsRegion;
+import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.LogRequest;
 import com.ilegra.laa.models.ResponseModel;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -9,6 +10,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Launcher;
 import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -56,11 +58,16 @@ public class HttpServerVerticle extends AbstractVerticle {
     String ingestedLog = routingContext.getBodyAsString();
     Optional<LogRequest> logRequest = this.parseLog(ingestedLog);
     logRequest.ifPresentOrElse( log -> {
-      LOG.debug("Log parsed successfully: {}", logRequest.get());
+      String json = Json.encodePrettily(logRequest.get());
+      LOG.debug("Log parsed successfully: {}", json);
+      try {
+        vertx.eventBus().send(EventBusAddress.LOG_RECEIVED.name(), json);
+      }
+      catch (Exception ex) {
+        ex.printStackTrace();
+      }
       routingContext.response()
-        .end(Json.encodePrettily(
-          new ResponseModel(routingContext.statusCode(), "Log processed successfully"))
-        );
+        .end(Json.encodePrettily(logRequest.get()));
     }, () -> {
       routingContext.response()
         .setStatusCode(HttpResponseStatus.BAD_REQUEST.code())
@@ -77,14 +84,11 @@ public class HttpServerVerticle extends AbstractVerticle {
     if(matcher.find()) {
       Optional<AwsRegion> region = AwsRegion.from(Integer.valueOf(matcher.group(4)));
       if (region.isPresent()) {
-        LocalDateTime date = LocalDateTime.ofInstant(
-          Instant.ofEpochSecond(Long.parseLong(matcher.group(2))),
-          ZoneOffset.UTC);
         return Optional.of(
           LogRequest
             .builder()
             .setUrl(matcher.group(1).replaceAll(REPLACE_IDS_IN_URL_REGEX, ID_REPLACEMENT))
-            .setDate(date)
+            .setDate(Instant.ofEpochSecond(Long.parseLong(matcher.group(2))))
             .setClientId(matcher.group(3))
             .setRegion(region.get())
             .createLogRequest()
