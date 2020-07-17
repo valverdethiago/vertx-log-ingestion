@@ -1,6 +1,6 @@
 package com.ilegra.laa;
 
-import com.ilegra.laa.verticles.HttpServerVerticle;
+import com.ilegra.laa.vertx.verticles.HttpServerVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;

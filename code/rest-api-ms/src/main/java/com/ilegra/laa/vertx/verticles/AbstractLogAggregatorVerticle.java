@@ -1,4 +1,4 @@
-package com.ilegra.laa.verticles;
+package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogRequest;
@@ -22,13 +22,15 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 
-public class LogAggregatorByUrlVerticle extends AbstractVerticle {
+public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
 
-  private final static Logger LOG = LoggerFactory.getLogger(LogAggregatorByUrlVerticle.class);
-  public final String kafkaServer;
+  private final static Logger LOG = LoggerFactory.getLogger(AbstractLogAggregatorVerticle.class);
 
   private final MetricType metricType;
   private final KafkaTopic inputTopicName;
@@ -37,13 +39,11 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
   private KafkaStreams streams;
   private KafkaConsumer<String, Long> consumer;
 
-  public LogAggregatorByUrlVerticle() {
-    this.inputTopicName = KafkaTopic.LOGS_INPUT;
-    this.outputTopicName = KafkaTopic.LOGS_GROUP_BY_URL_OUTPUT;
-    this.metricType = MetricType.GROUP_BY_URL;
-    kafkaServer = null;
+  public AbstractLogAggregatorVerticle(MetricType metricType, KafkaTopic inputTopicName, KafkaTopic outputTopicName) {
+    this.metricType = metricType;
+    this.inputTopicName = inputTopicName;
+    this.outputTopicName = outputTopicName;
   }
-
 
 
   @Override
@@ -61,6 +61,7 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
       LOG.info("Starting Kafka Streams {}", this.getClass().getSimpleName());
       createAggregatorKafkaStreams(builder);
       this.streams = new KafkaStreams(builder.build(), streamsConfiguration);
+      streams.cleanUp();
       streams.start();
     }, res ->{
       if (res.succeeded()) {
@@ -77,7 +78,7 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     vertx.<KafkaStreams>executeBlocking(future -> {
       consumer = KafkaConsumer.create(vertx, this.getConsumerConfiguration());
       consumer.handler(this::handleMetricUpdates);
-      consumer.subscribe(KafkaTopic.LOGS_GROUP_BY_URL_OUTPUT.name());
+      consumer.subscribe(this.outputTopicName.name());
     }, res ->{
       if (res.succeeded()) {
         LOG.info("Started Kafka Consumer {}", this.getClass().getSimpleName());
@@ -89,21 +90,13 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     });
   }
 
-  private void handleMetricUpdates(KafkaConsumerRecord<String, Long> record) {
-    SharedData sd = vertx.sharedData();
-    LocalMap<String, Long> map1 = sd.getLocalMap(this.metricType.name());
-    map1.put(record.key(), record.value());
-    LOG.debug("Processing key= {},value= {}, partition = {}, offset = {}", record.key(), record.value(),
-      record.partition(), record.offset());
-  }
-
   @Override
   public void stop() throws Exception {
     this.stopStreams();
     this.stopConsumer();
   }
 
-  public void stopStreams() throws Exception {
+  private void stopStreams() throws Exception {
     vertx.<Void>executeBlocking(future -> {
       LOG.info("Shutting down Kafka Streams {}", this.getClass().getSimpleName());
       streams.close();
@@ -112,13 +105,21 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     });
   }
 
-  public void stopConsumer() throws Exception {
+  private void stopConsumer() throws Exception {
     vertx.<Void>executeBlocking(future -> {
       LOG.info("Shutting down Kafka Consumer {}", this.getClass().getSimpleName());
       consumer.close();
       future.complete();
     }, msg -> {
     });
+  }
+
+  private void handleMetricUpdates(KafkaConsumerRecord<String, Long> record) {
+    SharedData sd = vertx.sharedData();
+    LocalMap<String, Long> map1 = sd.getLocalMap(this.metricType.name());
+    map1.put(record.key(), record.value());
+    LOG.debug("Processing topic = {}, key= {},value= {}, partition = {}, offset = {}", this.outputTopicName.name(),
+      record.key(), record.value(), record.partition(), record.offset());
   }
 
 
@@ -146,9 +147,7 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     wordCounts.toStream().to(this.outputTopicName.name(), Produced.with(Serdes.String(), Serdes.Long()));
   }
 
-  protected String groupBy(final LogRequest logRequest) {
-    return logRequest.getUrl();
-  }
+  protected abstract String groupBy(final LogRequest logRequest);
 
 
   /**
@@ -164,7 +163,7 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
     // against which the application is run.
     config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-access-analytics");
-    config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-access-analytics-client");
+    config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-access-analytics-client-"+this.metricType.name());
     // Where to find Kafka broker(s).
     config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     // Specify default (de)serializers for record keys and for record values.
@@ -176,7 +175,7 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     // For illustrative purposes we disable record caches.
     config.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
     // Use a temporary directory for storing state, which will be automatically removed after the test.
-//    config.put(StreamsConfig.STATE_DIR_CONFIG, TestUtils.tempDirectory().getAbsolutePath());
+    config.put(StreamsConfig.STATE_DIR_CONFIG, tempDirectory().getAbsolutePath());
     return config;
   }
 
@@ -185,9 +184,55 @@ public class LogAggregatorByUrlVerticle extends AbstractVerticle {
     config.put("bootstrap.servers", "localhost:9092");
     config.put("key.deserializer", StringDeserializer.class.getTypeName());
     config.put("value.deserializer", LongDeserializer.class.getTypeName());
-    config.put("group.id", "log-access-analytics-consumer");
+    config.put("group.id", "log-access-analytics-consumer:"+this.metricType.name());
     config.put("auto.offset.reset", "earliest");
     config.put("enable.auto.commit", "false");
     return config;
+  }
+
+  public static File tempDirectory() {
+    final File file;
+    try {
+      file = Files.createTempDirectory("confluent").toFile();
+    } catch (IOException var2) {
+      throw new RuntimeException("Failed to create a temp dir", var2);
+    }
+
+    file.deleteOnExit();
+    Runtime.getRuntime().addShutdownHook(new Thread() {
+      public void run() {
+        try {
+          delete(file);
+        } catch (IOException var2) {
+          System.out.println("Error deleting " + file.getAbsolutePath());
+        }
+
+      }
+    });
+    return file;
+  }
+
+  public static void delete(final File file) throws IOException {
+    if (file != null) {
+      Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
+        public FileVisitResult visitFileFailed(Path path, IOException exc) throws IOException {
+          if (exc instanceof NoSuchFileException && path.toFile().equals(file)) {
+            return FileVisitResult.TERMINATE;
+          } else {
+            throw exc;
+          }
+        }
+
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+          Files.delete(path);
+          return FileVisitResult.CONTINUE;
+        }
+
+        public FileVisitResult postVisitDirectory(Path path, IOException exc) throws IOException {
+          Files.delete(path);
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    }
   }
 }

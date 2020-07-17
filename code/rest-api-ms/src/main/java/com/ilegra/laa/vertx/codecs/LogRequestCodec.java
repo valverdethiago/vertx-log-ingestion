@@ -1,4 +1,4 @@
-package com.ilegra.laa;
+package com.ilegra.laa.vertx.codecs;
 
 import com.ilegra.laa.models.LogRequest;
 import io.vertx.core.buffer.Buffer;

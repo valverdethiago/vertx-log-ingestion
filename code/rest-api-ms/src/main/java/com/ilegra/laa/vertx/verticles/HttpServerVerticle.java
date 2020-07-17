@@ -1,4 +1,4 @@
-package com.ilegra.laa.verticles;
+package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.*;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -50,7 +51,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   }
 
   private void handleMetrics(RoutingContext routingContext) {
-    Map<String, String> map = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_URL.name());
+    Map<?, ?> map = aggregateMetrics();
     if(map.isEmpty()) {
       routingContext.response()
         .setStatusCode(HttpResponseStatus.NO_CONTENT.code())
@@ -62,6 +63,17 @@ public class HttpServerVerticle extends AbstractVerticle {
       routingContext.response()
         .end(Json.encodePrettily(map));
     }
+  }
+
+  private Map<String, Map<String, String>> aggregateMetrics() {
+    Map<String, String> groupByUrlMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_URL.name());
+    Map<String, String> groupByRegionMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_REGION.name());
+    Map<String, Map<String, String>> map = new HashMap<>();
+    if(!groupByUrlMap.isEmpty())
+      map.put(MetricType.GROUP_BY_URL.name(), groupByUrlMap);
+    if(!groupByRegionMap.isEmpty())
+      map.put(MetricType.GROUP_BY_REGION.name(), groupByRegionMap);
+    return map;
   }
 
   private void handleLogIngestion(RoutingContext routingContext){

@@ -1,4 +1,4 @@
-package com.ilegra.laa.verticles;
+package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.KafkaTopic;
@@ -8,15 +8,12 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
-import org.apache.kafka.common.serialization.LongDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 public class LogProducerVerticle extends AbstractVerticle {

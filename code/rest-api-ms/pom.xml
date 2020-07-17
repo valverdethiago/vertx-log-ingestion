@@ -36,7 +36,7 @@
     <logback.version>1.2.3</logback.version>
     <kafka.version> 5.5.0-ccs</kafka.version>
 
-    <main.verticle>com.ilegra.laa.verticles.HttpServerVerticle</main.verticle>
+    <main.verticle>com.ilegra.laa.vertx.verticles.HttpServerVerticle</main.verticle>
   </properties>
 
   <dependencyManagement>
