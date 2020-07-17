@@ -1,27 +1,18 @@
 package com.ilegra.laa.verticles;
 
-import com.ilegra.laa.builders.LogRequestBuilder;
-import com.ilegra.laa.models.AwsRegion;
-import com.ilegra.laa.models.EventBusAddress;
-import com.ilegra.laa.models.LogRequest;
-import com.ilegra.laa.models.ResponseModel;
+import com.ilegra.laa.models.*;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Launcher;
 import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,34 +31,52 @@ public class HttpServerVerticle extends AbstractVerticle {
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
 
+
     router.post("/laa/ingest").handler(this::handleLogIngestion);
+    router.get("/laa/metrics").handler(this::handleMetrics);
 
     vertx.createHttpServer().requestHandler(router).listen(Integer.parseInt(portCloud.orElse("8080")), res -> {
       if (res.succeeded()) {
         LOG.info("Server is now listening! ".concat("http://localhost:")
           .concat(String.valueOf(res.result().actualPort())
             .concat("/laa")));
+        startPromise.complete();
       } else {
         LOG.error("Failed to bind!");
+        startPromise.fail("Failed to bind");
       }
     });
 
+  }
+
+  private void handleMetrics(RoutingContext routingContext) {
+    Map<String, String> map = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_URL.name());
+    if(map.isEmpty()) {
+      routingContext.response()
+        .setStatusCode(HttpResponseStatus.NO_CONTENT.code())
+        .end(Json.encodePrettily(
+          new ResponseModel(HttpResponseStatus.BAD_REQUEST.code(), "No metrics yet"))
+        );
+    }
+    else {
+      routingContext.response()
+        .end(Json.encodePrettily(map));
+    }
   }
 
   private void handleLogIngestion(RoutingContext routingContext){
     String ingestedLog = routingContext.getBodyAsString();
     Optional<LogRequest> logRequest = this.parseLog(ingestedLog);
     logRequest.ifPresentOrElse( log -> {
-      String json = Json.encodePrettily(logRequest.get());
-      LOG.debug("Log parsed successfully: {}", json);
+      LOG.debug("Log parsed successfully: {}", log);
       try {
-        vertx.eventBus().send(EventBusAddress.LOG_RECEIVED.name(), json);
+        vertx.eventBus().send(EventBusAddress.LOG_RECEIVED.name(), log);
       }
       catch (Exception ex) {
         ex.printStackTrace();
       }
       routingContext.response()
-        .end(Json.encodePrettily(logRequest.get()));
+        .end(Json.encodePrettily(log));
     }, () -> {
       routingContext.response()
         .setStatusCode(HttpResponseStatus.BAD_REQUEST.code())

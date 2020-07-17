@@ -2,17 +2,17 @@ package com.ilegra.laa.models;
 
 import com.ilegra.laa.builders.LogRequestBuilder;
 
+import java.io.Serializable;
 import java.time.Instant;
 
-public class LogRequest {
+public class LogRequest implements Serializable {
 
   private String url;
   private Instant date;
   private String clientId;
   private AwsRegion region;
 
-  public static LogRequestBuilder builder() {
-    return new LogRequestBuilder();
+  public LogRequest() {
   }
 
   public LogRequest(String url, Instant date, String clientId, AwsRegion region) {
@@ -20,6 +20,10 @@ public class LogRequest {
     this.date = date;
     this.clientId = clientId;
     this.region = region;
+  }
+
+  public static LogRequestBuilder builder() {
+    return new LogRequestBuilder();
   }
 
   public String getUrl() {
