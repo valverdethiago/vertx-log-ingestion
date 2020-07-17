@@ -24,7 +24,6 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_CREATE_TOPICS: "current-final-rating-bu:1:1,current-final-rating-ame:1:1,current-final-rating-age:1:1"
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka:19092,LISTENER_DOCKER_EXTERNAL://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
@@ -35,7 +34,29 @@ services:
     volumes:
       - kafka-volume:/var/lib/kafka/data
     depends_on:
+      - zoo    
+
+  # This "container" is a workaround to pre-create topics
+  kafka-setup:
+    image: confluentinc/cp-kafka:5.3.1
+    hostname: kafka-setup
+    container_name: kafka-setup
+    depends_on:
+      - kafka
+      - schema-registry
       - zoo
+    volumes:
+      - kafka-setup-connectors:/tmp/connectors
+      - kafka-setup-dashboard:/tmp/dashboard
+    command: "bash -c 'echo Waiting for Kafka to be ready... && \
+                       cub kafka-ready -b kafka:19092 1 20 && \
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_INPUT && \
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_URL_OUTPUT  '"
+    environment:
+      # The following settings are listed here only to satisfy the image's requirements.
+      # We override the image's `command` anyways, hence this container will not start a broker.
+      KAFKA_BROKER_ID: ignored
+      KAFKA_ZOOKEEPER_CONNECT: ignored
 
   kafka-ui:
     image: obsidiandynamics/kafdrop
@@ -48,40 +69,20 @@ services:
       KAFKA_BROKERCONNECT: kafka:19092
     depends_on:
       - kafka 
-      - zoo 
+      - zoo   
 
-  postgres:
-    image: postgres
-    container_name: postgres
-    hostname: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_PASSWORD: "1l&gr@"
-      POSTGRES_DB: log_ingestion_db
-      POSTGRES_USER: ilegra
-    ports:
-      - "5432:5432"
-    expose:
-      - "5432"
-    volumes:
-      - postgres-volume:/var/lib/postgresql/data 
-      
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pg-admin
-    hostname: pg-admin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "sw-architect@ilegra.com"
-      PGADMIN_DEFAULT_PASSWORD: "1l&gr@"
-    ports:
-      - "8082:80"
-    expose:
-      - "8082"
+  schema-registry:
+    image: confluentinc/cp-schema-registry:5.3.1
+    hostname: schema-registry
+    container_name: schema-registry
     depends_on:
-      - postgres
-    volumes:
-      - pg-admin-volume:/var/lib/pgadmin
+      - zoo
+      - kafka
+    ports:
+      - "9001:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zoo:2181"
 
 volumes:
   kafka-volume:
@@ -90,8 +91,8 @@ volumes:
     external: false
   zzo-datalog-volume:
     external: false
-  postgres-volume:
+  kafka-setup-connectors:
     external: false
-  pg-admin-volume:
+  kafka-setup-dashboard:
     external: false
 
