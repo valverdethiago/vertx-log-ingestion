@@ -52,42 +52,38 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   private void handleMetrics(RoutingContext routingContext) {
     Map<?, ?> map = aggregateMetrics();
-    if(map.isEmpty()) {
+    if (map.isEmpty()) {
       routingContext.response()
         .setStatusCode(HttpResponseStatus.NO_CONTENT.code())
         .end(Json.encodePrettily(
           new ResponseModel(HttpResponseStatus.BAD_REQUEST.code(), "No metrics yet"))
         );
-    }
-    else {
+    } else {
       routingContext.response()
         .end(Json.encodePrettily(map));
     }
   }
 
   private Map<String, Map<String, String>> aggregateMetrics() {
-    Map<String, String> groupByUrlMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_URL.name());
-    Map<String, String> groupByRegionMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_REGION.name());
-    Map<String, String> groupByDayMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_DAY.name());
     Map<String, Map<String, String>> map = new HashMap<>();
-    if(!groupByUrlMap.isEmpty())
-      map.put(MetricType.GROUP_BY_URL.name(), groupByUrlMap);
-    if(!groupByRegionMap.isEmpty())
-      map.put(MetricType.GROUP_BY_REGION.name(), groupByRegionMap);
-    if(!groupByDayMap.isEmpty())
-      map.put(MetricType.GROUP_BY_DAY.name(), groupByDayMap);
+    map.put(MetricType.GROUP_BY_URL.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_URL.name()));
+    map.put(MetricType.GROUP_BY_REGION.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_REGION.name()));
+    map.put(MetricType.GROUP_BY_DAY.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_DAY.name()));
+    map.put(MetricType.GROUP_BY_WEEK.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_WEEK.name()));
+    map.put(MetricType.GROUP_BY_MONTH.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_MONTH.name()));
+    map.put(MetricType.GROUP_BY_YEAR.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_YEAR.name()));
+    map.put(MetricType.GROUP_BY_MINUTE.name(), vertx.sharedData().getLocalMap(MetricType.GROUP_BY_MINUTE.name()));
     return map;
   }
 
-  private void handleLogIngestion(RoutingContext routingContext){
+  private void handleLogIngestion(RoutingContext routingContext) {
     String ingestedLog = routingContext.getBodyAsString();
     Optional<LogRequest> logRequest = this.parseLog(ingestedLog);
-    logRequest.ifPresentOrElse( log -> {
+    logRequest.ifPresentOrElse(log -> {
       LOG.debug("Log parsed successfully: {}", log);
       try {
         vertx.eventBus().send(EventBusAddress.LOG_RECEIVED.name(), log);
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         ex.printStackTrace();
       }
       routingContext.response()
@@ -105,7 +101,7 @@ public class HttpServerVerticle extends AbstractVerticle {
   private Optional<LogRequest> parseLog(String ingestedLog) {
     Pattern pattern = Pattern.compile(VALID_URL_REGEX);
     Matcher matcher = pattern.matcher(ingestedLog);
-    if(matcher.find()) {
+    if (matcher.find()) {
       Optional<AwsRegion> region = AwsRegion.from(Integer.valueOf(matcher.group(4)));
       if (region.isPresent()) {
         return Optional.of(

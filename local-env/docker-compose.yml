@@ -52,7 +52,11 @@ services:
                        cub kafka-ready -b kafka:19092 1 20 && \
                        kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_INPUT && \
                        kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_URL_OUTPUT && \
-                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_REGION_OUTPUT  '"
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_DAY_OUTPUT && \
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_WEEK_OUTPUT && \
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_MONTH_OUTPUT && \
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_YEAR_OUTPUT && \
+                       kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_GROUP_BY_MINUTE_OUTPUT  '"
     environment:
       # The following settings are listed here only to satisfy the image's requirements.
       # We override the image's `command` anyways, hence this container will not start a broker.
