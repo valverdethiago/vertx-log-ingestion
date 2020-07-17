@@ -61,7 +61,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
       LOG.info("Starting Kafka Streams {}", this.getClass().getSimpleName());
       createAggregatorKafkaStreams(builder);
       this.streams = new KafkaStreams(builder.build(), streamsConfiguration);
-      streams.cleanUp();
+//      streams.cleanUp();
       streams.start();
     }, res ->{
       if (res.succeeded()) {
@@ -162,7 +162,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     final Properties config = new Properties();
     // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
     // against which the application is run.
-    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-access-analytics");
+    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-access-analytics-"+this.metricType.name());
     config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-access-analytics-client-"+this.metricType.name());
     // Where to find Kafka broker(s).
     config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -175,7 +175,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     // For illustrative purposes we disable record caches.
     config.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
     // Use a temporary directory for storing state, which will be automatically removed after the test.
-    config.put(StreamsConfig.STATE_DIR_CONFIG, tempDirectory().getAbsolutePath());
+//    config.put(StreamsConfig.STATE_DIR_CONFIG, tempDirectory().getAbsolutePath());
     return config;
   }
 
@@ -189,7 +189,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     config.put("enable.auto.commit", "false");
     return config;
   }
-
+/*
   public static File tempDirectory() {
     final File file;
     try {
@@ -235,4 +235,5 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
       });
     }
   }
+  */
 }
