@@ -68,11 +68,14 @@ public class HttpServerVerticle extends AbstractVerticle {
   private Map<String, Map<String, String>> aggregateMetrics() {
     Map<String, String> groupByUrlMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_URL.name());
     Map<String, String> groupByRegionMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_REGION.name());
+    Map<String, String> groupByDayMap = vertx.sharedData().getLocalMap(MetricType.GROUP_BY_DAY.name());
     Map<String, Map<String, String>> map = new HashMap<>();
     if(!groupByUrlMap.isEmpty())
       map.put(MetricType.GROUP_BY_URL.name(), groupByUrlMap);
     if(!groupByRegionMap.isEmpty())
       map.put(MetricType.GROUP_BY_REGION.name(), groupByRegionMap);
+    if(!groupByDayMap.isEmpty())
+      map.put(MetricType.GROUP_BY_DAY.name(), groupByDayMap);
     return map;
   }
 
