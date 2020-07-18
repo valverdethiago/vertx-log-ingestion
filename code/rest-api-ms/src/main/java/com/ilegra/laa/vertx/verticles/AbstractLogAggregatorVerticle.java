@@ -2,7 +2,7 @@ package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogRequest;
-import com.ilegra.laa.models.MetricType;
+import com.ilegra.laa.models.MetricGroupType;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
@@ -22,25 +22,21 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 
 public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(AbstractLogAggregatorVerticle.class);
 
-  private final MetricType metricType;
+  private final MetricGroupType metricGroupType;
   private final KafkaTopic inputTopicName;
   private final KafkaTopic outputTopicName;
 
   private KafkaStreams streams;
   private KafkaConsumer<String, Long> consumer;
 
-  public AbstractLogAggregatorVerticle(MetricType metricType, KafkaTopic inputTopicName, KafkaTopic outputTopicName) {
-    this.metricType = metricType;
+  public AbstractLogAggregatorVerticle(MetricGroupType metricGroupType, KafkaTopic inputTopicName, KafkaTopic outputTopicName) {
+    this.metricGroupType = metricGroupType;
     this.inputTopicName = inputTopicName;
     this.outputTopicName = outputTopicName;
   }
@@ -61,7 +57,6 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
       LOG.info("Starting Kafka Streams {}", this.getClass().getSimpleName());
       createAggregatorKafkaStreams(builder);
       this.streams = new KafkaStreams(builder.build(), streamsConfiguration);
-//      streams.cleanUp();
       streams.start();
     }, res ->{
       if (res.succeeded()) {
@@ -116,7 +111,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
 
   private void handleMetricUpdates(KafkaConsumerRecord<String, Long> record) {
     SharedData sd = vertx.sharedData();
-    LocalMap<String, Long> map1 = sd.getLocalMap(this.metricType.name());
+    LocalMap<String, Long> map1 = sd.getLocalMap(this.metricGroupType.name());
     map1.put(record.key(), record.value());
     LOG.debug("Processing topic = {}, key= {},value= {}, partition = {}, offset = {}", this.outputTopicName.name(),
       record.key(), record.value(), record.partition(), record.offset());
@@ -162,8 +157,8 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     final Properties config = new Properties();
     // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
     // against which the application is run.
-    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-access-analytics-"+this.metricType.name());
-    config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-access-analytics-client-"+this.metricType.name());
+    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-access-analytics-"+this.metricGroupType.name());
+    config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-access-analytics-client-"+this.metricGroupType.name());
     // Where to find Kafka broker(s).
     config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     // Specify default (de)serializers for record keys and for record values.
@@ -174,8 +169,6 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
     // For illustrative purposes we disable record caches.
     config.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
-    // Use a temporary directory for storing state, which will be automatically removed after the test.
-//    config.put(StreamsConfig.STATE_DIR_CONFIG, tempDirectory().getAbsolutePath());
     return config;
   }
 
@@ -184,56 +177,9 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     config.put("bootstrap.servers", "localhost:9092");
     config.put("key.deserializer", StringDeserializer.class.getTypeName());
     config.put("value.deserializer", LongDeserializer.class.getTypeName());
-    config.put("group.id", "log-access-analytics-consumer:"+this.metricType.name());
+    config.put("group.id", "log-access-analytics-consumer-"+this.metricGroupType.name());
     config.put("auto.offset.reset", "earliest");
     config.put("enable.auto.commit", "false");
     return config;
   }
-/*
-  public static File tempDirectory() {
-    final File file;
-    try {
-      file = Files.createTempDirectory("confluent").toFile();
-    } catch (IOException var2) {
-      throw new RuntimeException("Failed to create a temp dir", var2);
-    }
-
-    file.deleteOnExit();
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      public void run() {
-        try {
-          delete(file);
-        } catch (IOException var2) {
-          System.out.println("Error deleting " + file.getAbsolutePath());
-        }
-
-      }
-    });
-    return file;
-  }
-
-  public static void delete(final File file) throws IOException {
-    if (file != null) {
-      Files.walkFileTree(file.toPath(), new SimpleFileVisitor<Path>() {
-        public FileVisitResult visitFileFailed(Path path, IOException exc) throws IOException {
-          if (exc instanceof NoSuchFileException && path.toFile().equals(file)) {
-            return FileVisitResult.TERMINATE;
-          } else {
-            throw exc;
-          }
-        }
-
-        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-          Files.delete(path);
-          return FileVisitResult.CONTINUE;
-        }
-
-        public FileVisitResult postVisitDirectory(Path path, IOException exc) throws IOException {
-          Files.delete(path);
-          return FileVisitResult.CONTINUE;
-        }
-      });
-    }
-  }
-  */
 }
