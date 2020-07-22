@@ -1,27 +1,27 @@
 package com.ilegra.laa.vertx.codecs;
 
-import com.ilegra.laa.models.LogRequest;
+import com.ilegra.laa.models.LogEntry;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.Json;
 
-public class LogRequestCodec implements MessageCodec<LogRequest, LogRequest> {
+public class LogRequestCodec implements MessageCodec<LogEntry, LogEntry> {
   @Override
-  public void encodeToWire(Buffer buffer, LogRequest logRequest) {
-    String json = Json.encodePrettily(logRequest);
+  public void encodeToWire(Buffer buffer, LogEntry logEntry) {
+    String json = Json.encodePrettily(logEntry);
     int length = json.getBytes().length;
     buffer.appendInt(length);
     buffer.appendString(json);
   }
 
   @Override
-  public LogRequest decodeFromWire(int position, Buffer buffer) {
-    return Json.decodeValue(buffer, LogRequest.class);
+  public LogEntry decodeFromWire(int position, Buffer buffer) {
+    return Json.decodeValue(buffer, LogEntry.class);
   }
 
   @Override
-  public LogRequest transform(LogRequest logRequest) {
-    return logRequest;
+  public LogEntry transform(LogEntry logEntry) {
+    return logEntry;
   }
 
   @Override

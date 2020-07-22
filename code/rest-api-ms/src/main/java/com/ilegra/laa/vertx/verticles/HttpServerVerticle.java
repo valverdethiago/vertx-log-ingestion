@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -116,13 +117,11 @@ public class HttpServerVerticle extends AbstractVerticle {
     return SearchFilter.builder()
       .groupBy(SearchGroupBy.from(request.getParam("groupBy")))
       .order(SearchOrder.from(request.getParam("order")))
-      /*
-      .minute(getDateExpression(request.getParam("day"), DatePattern.DAY.getPattern()))
+      .minute(getDateExpression(request.getParam("day"), DatePattern.MINUTE.getPattern()))
       .day(getDateExpression(request.getParam("day"), DatePattern.DAY.getPattern()))
       .month(getDateExpression(request.getParam("day"), DatePattern.DAY.getPattern()))
       .year(getDateExpression(request.getParam("day"), DatePattern.DAY.getPattern()))
       .week(getWeekExpression(request.getParam("week")))
-       */
       .size(getIntegerParameter(request.getParam("size")))
       .createSearchFilter();
   }
@@ -151,12 +150,12 @@ public class HttpServerVerticle extends AbstractVerticle {
     return weekExpression;
   }
 
-  private Integer getIntegerParameter(String sizeEpression) {
-    if(sizeEpression == null || sizeEpression.isBlank()) {
+  private Integer getIntegerParameter(String sizeExpression) {
+    if(sizeExpression == null || sizeExpression.isBlank()) {
       return DEFAULT_SEARCH_SIZE;
     }
     try {
-      return Integer.parseInt(sizeEpression.trim());
+      return Integer.parseInt(sizeExpression.trim());
     }
     catch (Exception ex) {
       throw new ValidationException("Invalid value for size");
@@ -191,7 +190,7 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   private void handleLogIngestion(RoutingContext routingContext) {
     String ingestedLog = routingContext.getBodyAsString();
-    Optional<LogRequest> logRequest = this.parseLog(ingestedLog);
+    Optional<LogEntry> logRequest = this.parseLog(ingestedLog);
     logRequest.ifPresentOrElse(log -> {
       LOG.debug("Log parsed successfully: {}", log);
       try {
@@ -211,15 +210,16 @@ public class HttpServerVerticle extends AbstractVerticle {
   }
 
 
-  private Optional<LogRequest> parseLog(String ingestedLog) {
+  private Optional<LogEntry> parseLog(String ingestedLog) {
     Pattern pattern = Pattern.compile(VALID_URL_REGEX);
     Matcher matcher = pattern.matcher(ingestedLog);
     if (matcher.find()) {
       Optional<AwsRegion> region = AwsRegion.from(Integer.valueOf(matcher.group(4)));
       if (region.isPresent()) {
         return Optional.of(
-          LogRequest
+          LogEntry
             .builder()
+            .setId(UUID.randomUUID())
             .setUrl(matcher.group(1).replaceAll(REPLACE_IDS_IN_URL_REGEX, ID_REPLACEMENT))
             .setDate(Instant.ofEpochSecond(Long.parseLong(matcher.group(2))))
             .setClientId(matcher.group(3))

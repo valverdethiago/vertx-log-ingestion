@@ -1,7 +1,7 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.KafkaTopic;
-import com.ilegra.laa.models.LogRequest;
+import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
 
 public class LogAggregatorByUrlVerticle extends AbstractLogAggregatorVerticle {
@@ -13,7 +13,7 @@ public class LogAggregatorByUrlVerticle extends AbstractLogAggregatorVerticle {
   }
 
   @Override
-  protected String groupBy(LogRequest logRequest) {
+  protected String groupBy(LogEntry logRequest) {
     return logRequest.getUrl();
   }
 }

@@ -2,7 +2,7 @@ package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.DatePattern;
 import com.ilegra.laa.models.KafkaTopic;
-import com.ilegra.laa.models.LogRequest;
+import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
 
 import java.text.DateFormat;
@@ -20,8 +20,8 @@ public class LogAggregatorByMinuteVerticle extends AbstractLogAggregatorVerticle
   }
 
   @Override
-  protected String groupBy(LogRequest logRequest) {
-    Date date = Date.from(logRequest.getDate());
+  protected String groupBy(LogEntry logEntry) {
+    Date date = Date.from(logEntry.getDate());
     return DATE_FORMAT.format(date);
   }
 }

@@ -1,8 +1,12 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.KafkaTopic;
-import com.ilegra.laa.models.LogRequest;
+import com.ilegra.laa.models.LogAggregator;
+import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
+import com.ilegra.laa.serialization.LogAggregatorDeserializer;
+import com.ilegra.laa.serialization.LogAggregatorSerde;
+import com.ilegra.laa.serialization.LogEntrySerde;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
@@ -17,7 +21,8 @@ import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
-import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Consumed;
+import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +38,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
   private final KafkaTopic outputTopicName;
 
   private KafkaStreams streams;
-  private KafkaConsumer<String, Long> consumer;
+  private KafkaConsumer<String, LogAggregator> consumer;
 
   public AbstractLogAggregatorVerticle(MetricGroupType metricGroupType, KafkaTopic inputTopicName, KafkaTopic outputTopicName) {
     this.metricGroupType = metricGroupType;
@@ -109,10 +114,10 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     });
   }
 
-  private void handleMetricUpdates(KafkaConsumerRecord<String, Long> record) {
+  private void handleMetricUpdates(KafkaConsumerRecord<String, LogAggregator> record) {
     SharedData sd = vertx.sharedData();
-    LocalMap<String, Long> map1 = sd.getLocalMap(this.metricGroupType.name());
-    map1.put(record.key(), record.value());
+    LocalMap<String, String> map1 = sd.getLocalMap(this.metricGroupType.name());
+    map1.put(record.key(), Json.encodePrettily(record.value()));
     LOG.debug("Processing topic = {}, key= {},value= {}, partition = {}, offset = {}", this.outputTopicName.name(),
       record.key(), record.value(), record.partition(), record.offset());
   }
@@ -127,22 +132,27 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     // Construct a `KStream` from the input topic , where message values
     // represent logs sent through API , we ignore whatever may be stored
     // in the message keys).  The default key and value serdes will be used.
-    final KTable<String, String> jsonLogs = builder.table(this.inputTopicName.name());
-
-    final KTable<String, Long> wordCounts = jsonLogs
-      .groupBy((keyIgnored, log) -> {
-        LogRequest logObj = Json.decodeValue(log, LogRequest.class);
-        String groupBy = this.groupBy(logObj);
-        return KeyValue.pair(groupBy, groupBy);
-      })
-      // Count the occurrences of each group (record key).
-      .count();
-
-    // Write the `KTable<String, Long>` to the output topic.
-    wordCounts.toStream().to(this.outputTopicName.name(), Produced.with(Serdes.String(), Serdes.Long()));
+    builder.stream(this.inputTopicName.name(),
+      Consumed.with(Serdes.String(), new LogEntrySerde()))
+      .map( (key, log) -> {
+        String groupBy = this.groupBy(log);
+        return KeyValue.pair(groupBy, log);
+        })
+      .groupByKey()
+      .aggregate(LogAggregator::new,
+        (key, log, logAgg) -> {
+          logAgg.getUrls().add(log);
+          return logAgg;
+        },
+        Materialized.with(Serdes.String(), new LogAggregatorSerde()))
+      .toStream()
+      .map( (key, logAgg) -> {
+        logAgg.generateRanking();
+        return new KeyValue<>(key, logAgg);
+      }).to(this.outputTopicName.name(), Produced.with(Serdes.String(), new LogAggregatorSerde()));
   }
 
-  protected abstract String groupBy(final LogRequest logRequest);
+  protected abstract String groupBy(final LogEntry logRequest);
 
 
   /**
@@ -162,8 +172,8 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     // Where to find Kafka broker(s).
     config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     // Specify default (de)serializers for record keys and for record values.
-    config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-    config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+    config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getTypeName());
+    config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, LogEntrySerde.class.getTypeName());
     // Records should be flushed every 10 seconds. This is less than the default
     // in order to keep this example interactive.
     config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
@@ -176,7 +186,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractVerticle {
     final Properties config = new Properties();
     config.put("bootstrap.servers", "localhost:9092");
     config.put("key.deserializer", StringDeserializer.class.getTypeName());
-    config.put("value.deserializer", LongDeserializer.class.getTypeName());
+    config.put("value.deserializer", LogAggregatorDeserializer.class.getTypeName());
     config.put("group.id", "log-access-analytics-consumer-"+this.metricGroupType.name());
     config.put("auto.offset.reset", "earliest");
     config.put("enable.auto.commit", "false");

@@ -1,7 +1,7 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.KafkaTopic;
-import com.ilegra.laa.models.LogRequest;
+import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
 
 import java.time.ZoneId;
@@ -16,7 +16,7 @@ public class LogAggregatorByWeekVerticle extends AbstractLogAggregatorVerticle {
   }
 
   @Override
-  protected String groupBy(LogRequest logRequest) {
+  protected String groupBy(LogEntry logRequest) {
     ZonedDateTime zdt = ZonedDateTime.ofInstant(logRequest.getDate(), ZoneId.systemDefault());
     Calendar calendar = GregorianCalendar.from(zdt);
     return calendar.get(Calendar.WEEK_OF_YEAR)+"-"+calendar.get(Calendar.YEAR);

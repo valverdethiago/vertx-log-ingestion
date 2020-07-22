@@ -2,7 +2,9 @@ package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.KafkaTopic;
-import com.ilegra.laa.models.LogRequest;
+import com.ilegra.laa.models.LogEntry;
+import com.ilegra.laa.serialization.LogEntrySerde;
+import com.ilegra.laa.serialization.LogEntrySerializer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
@@ -23,16 +25,16 @@ public class LogProducerVerticle extends AbstractVerticle {
   @Override
   public void start(final Promise<Void> startPromise) {
     final Map<String, String> config = createKafkaProducerConfig();
-    final KafkaProducer<String, String> kafkaProducer = KafkaProducer.create(vertx, config);
+    final KafkaProducer<String, LogEntry> kafkaProducer = KafkaProducer.create(vertx, config);
 
     vertx.eventBus().localConsumer(EventBusAddress.LOG_RECEIVED.name(), message -> {
       final String key = UUID.randomUUID().toString();
-      LogRequest log = (LogRequest) message.body();
+      LogEntry log = (LogEntry) message.body();
       String json = Json.encodePrettily(log);
       LOG.debug("Log received successfully {} | {}", log, json);
 
-      final KafkaProducerRecord<String, String> kafkaProducerRecord = KafkaProducerRecord
-        .create(KafkaTopic.LOGS_INPUT.name(), key, json);
+      final KafkaProducerRecord<String, LogEntry> kafkaProducerRecord = KafkaProducerRecord
+        .create(KafkaTopic.LOGS_INPUT.name(), key, log);
 
       kafkaProducer.send(kafkaProducerRecord, result -> {
         if (result.failed()) {
@@ -53,7 +55,7 @@ public class LogProducerVerticle extends AbstractVerticle {
     final Map<String, String> config = new HashMap<>();
     config.put("bootstrap.servers", "localhost:9092");
     config.put("key.serializer", StringSerializer.class.getTypeName());
-    config.put("value.serializer", StringSerializer.class.getTypeName());
+    config.put("value.serializer", LogEntrySerializer.class.getTypeName());
     return config;
   }
 
