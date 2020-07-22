@@ -27,9 +27,7 @@ public class LogAggregatorByUrlVerticle extends AbstractLogStreamVerticle<Long> 
   protected void createAggregatorKafkaStreams(StreamsBuilder builder) {
     builder.stream(this.inputTopicName.name(),
       Consumed.with(Serdes.String(), new LogEntrySerde()))
-      .map( (key, log) -> {
-        return KeyValue.pair(log.getUrl(), log);
-      })
+      .map( (key, log) -> KeyValue.pair(log.getUrl(), log))
       .groupByKey()
       .aggregate(LogAggregator::new,
         (key, log, logAgg) -> {
@@ -40,15 +38,6 @@ public class LogAggregatorByUrlVerticle extends AbstractLogStreamVerticle<Long> 
       .toStream()
       .map( (key, logAgg) ->  new KeyValue<>(key, logAgg.countUrls()))
       .to(this.outputTopicName.name(), Produced.with(Serdes.String(), Serdes.Long()));
-    /*
-    builder.stream(this.inputTopicName.name(),
-      Consumed.with(Serdes.String(), new LogEntrySerde()))
-      .groupBy( (key, log) -> log.getUrl() )
-      .count(Materialized.with(Serdes.String(), Serdes.Long()))
-      .toStream()
-      .to(this.outputTopicName.name(), Produced.with(Serdes.String(), Serdes.Long()));
-
-     */
   }
 
   @Override
