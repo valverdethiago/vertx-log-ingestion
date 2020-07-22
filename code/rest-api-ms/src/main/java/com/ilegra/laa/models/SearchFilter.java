@@ -16,11 +16,12 @@ public class SearchFilter implements Serializable {
   private String month;
   private String year;
   private String minute;
+  private String searchTerm;
 
   public SearchFilter() {
   }
 
-  public SearchFilter(SearchOrder order, SearchGroupBy groupBy, Integer size, String day, String week, String month, String year, String minute) {
+  public SearchFilter(SearchOrder order, SearchGroupBy groupBy, Integer size, String day, String week, String month, String year, String minute, String searchTerm) {
     this.order = order;
     this.groupBy = groupBy;
     this.size = size;
@@ -29,6 +30,7 @@ public class SearchFilter implements Serializable {
     this.month = month;
     this.year = year;
     this.minute = minute;
+    this.searchTerm = searchTerm;
   }
 
   public static SearchFilterBuilder builder() {
@@ -65,6 +67,14 @@ public class SearchFilter implements Serializable {
 
   public String getMinute() {
     return minute;
+  }
+
+  public String getSearchTerm() {
+    return searchTerm;
+  }
+
+  public void setSearchTerm(String searchTerm) {
+    this.searchTerm = searchTerm;
   }
 
   @Override

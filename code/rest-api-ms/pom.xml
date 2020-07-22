@@ -29,12 +29,11 @@
     <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
-
     <vertx.version>3.9.1</vertx.version>
     <junit-jupiter.version>5.4.0</junit-jupiter.version>
-
     <logback.version>1.2.3</logback.version>
     <kafka.version> 5.5.0-ccs</kafka.version>
+    <zandero.version>0.9.1</zandero.version>
 
     <main.verticle>com.ilegra.laa.vertx.verticles.HttpServerVerticle</main.verticle>
   </properties>
@@ -80,6 +79,18 @@
       <artifactId>kafka-clients</artifactId>
       <version>${kafka.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.zandero</groupId>
+      <artifactId>rest.vertx</artifactId>
+      <version>${zandero.version}</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-server -->
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-server</artifactId>
+      <version>2.31</version>
+    </dependency>
+
 
 
     <dependency>

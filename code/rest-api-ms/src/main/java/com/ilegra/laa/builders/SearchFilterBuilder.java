@@ -13,6 +13,7 @@ public class SearchFilterBuilder {
   private String month;
   private String year;
   private String minute;
+  private String searchTerm;
 
   public SearchFilterBuilder order(SearchOrder order) {
     this.order = order;
@@ -54,7 +55,12 @@ public class SearchFilterBuilder {
     return this;
   }
 
+  public SearchFilterBuilder searchTerm(String searchTerm) {
+    this.searchTerm = searchTerm;
+    return this;
+  }
+
   public SearchFilter createSearchFilter() {
-    return new SearchFilter(order, groupBy, size, day, week, month, year, minute);
+    return new SearchFilter(order, groupBy, size, day, week, month, year, minute, searchTerm);
   }
 }
