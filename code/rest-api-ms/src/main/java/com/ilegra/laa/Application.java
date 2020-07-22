@@ -14,10 +14,10 @@ public class Application {
     vertx.deployVerticle(new LogProducerVerticle());
     vertx.deployVerticle(new LogAggregatorByUrlVerticle());
     vertx.deployVerticle(new LogAggregatorByRegionVerticle());
+    vertx.deployVerticle(new LogAggregatorByMinuteVerticle());
     vertx.deployVerticle(new LogAggregatorByDayVerticle());
     vertx.deployVerticle(new LogAggregatorByWeekVerticle());
     vertx.deployVerticle(new LogAggregatorByMonthVerticle());
     vertx.deployVerticle(new LogAggregatorByYearVerticle());
-    vertx.deployVerticle(new LogAggregatorByMinuteVerticle());
   }
 }

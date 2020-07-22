@@ -1,13 +1,12 @@
 package com.ilegra.laa.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-public class LogAggregator {
+public class LogAggregator implements Serializable {
   private Set<LogEntry> urls = new HashSet<>();
   private Set<LogRanking> ranking = new HashSet<>();
 
