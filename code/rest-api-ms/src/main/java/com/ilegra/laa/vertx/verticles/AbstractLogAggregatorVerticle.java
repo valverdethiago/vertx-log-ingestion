@@ -44,10 +44,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractLogStreamVer
         })
       .groupByKey()
       .aggregate(LogAggregator::new,
-        (key, log, logAgg) -> {
-          logAgg.getUrls().add(log);
-          return logAgg;
-        },
+        (key, log, logAgg) ->  logAgg.add(log),
         Materialized.with(Serdes.String(), new LogAggregatorSerde()))
       .toStream()
       .map( (key, logAgg) -> {

@@ -7,8 +7,13 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public class LogAggregator implements Serializable {
-  private Set<LogEntry> urls = new HashSet<>();
-  private Set<LogRanking> ranking = new HashSet<>();
+  private Set<LogEntry> urls;
+  private Set<LogRanking> ranking;
+
+  public LogAggregator() {
+    this.urls = new HashSet<>();
+    this.ranking = new HashSet<>();
+  }
 
   public Set<LogEntry> getUrls() {
     return urls;
@@ -16,6 +21,11 @@ public class LogAggregator implements Serializable {
 
   public Set<LogRanking> getRanking() {
     return ranking;
+  }
+
+  public LogAggregator add(LogEntry log) {
+    this.urls.add(log);
+    return this;
   }
 
   public void generateRanking() {
@@ -27,7 +37,10 @@ public class LogAggregator implements Serializable {
         .collect(Collectors.groupingBy(LogEntry::getUrl, Collectors.counting()))
         .entrySet().stream().map(entry -> new LogRanking(entry.getKey(), entry.getValue()))
     .collect(Collectors.toSet());
-    this.urls = null;
+  }
+
+  public Long countUrls() {
+    return urls == null ? 0L : urls.size();
   }
 
   @Override

@@ -12,10 +12,10 @@ public class Application {
     vertx.eventBus().registerDefaultCodec(LogEntry.class, new LogRequestCodec());
     vertx.deployVerticle(new HttpServerVerticle());
     vertx.deployVerticle(new LogProducerVerticle());
+    vertx.deployVerticle(new LogAggregatorByDayVerticle());
     vertx.deployVerticle(new LogAggregatorByUrlVerticle());
     vertx.deployVerticle(new LogAggregatorByRegionVerticle());
     vertx.deployVerticle(new LogAggregatorByMinuteVerticle());
-    vertx.deployVerticle(new LogAggregatorByDayVerticle());
     vertx.deployVerticle(new LogAggregatorByWeekVerticle());
     vertx.deployVerticle(new LogAggregatorByMonthVerticle());
     vertx.deployVerticle(new LogAggregatorByYearVerticle());

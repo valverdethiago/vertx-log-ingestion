@@ -61,6 +61,7 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
       LOG.info("Starting Kafka Streams {}", this.getClass().getSimpleName());
       createAggregatorKafkaStreams(builder);
       this.streams = new KafkaStreams(builder.build(), streamsConfiguration);
+      streams.cleanUp();
       streams.start();
     }, res ->{
       if (res.succeeded()) {
@@ -134,13 +135,14 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     final Properties config = new Properties();
     // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
     // against which the application is run.
-    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-access-analytics-"+this.metricGroupType.name());
-    config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-access-analytics-client-"+this.metricGroupType.name());
+    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "laa-"+this.metricGroupType.name());
+    config.put(StreamsConfig.CLIENT_ID_CONFIG, "laa-client-"+this.metricGroupType.name());
     // Where to find Kafka broker(s).
     config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     // Specify default (de)serializers for record keys and for record values.
     config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getTypeName());
     config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, LogEntrySerde.class.getTypeName());
+    config.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/laa/state-dir");
     // Records should be flushed every 10 seconds. This is less than the default
     // in order to keep this example interactive.
     config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);

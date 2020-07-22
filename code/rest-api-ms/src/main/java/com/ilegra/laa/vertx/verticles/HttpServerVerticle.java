@@ -178,13 +178,20 @@ public class HttpServerVerticle extends AbstractVerticle {
 
   private Map<String, Map<String, String>> aggregateMetrics() {
     Map<String, Map<String, String>> map = new HashMap<>();
-    map.put(MetricGroupType.GROUP_BY_URL.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_URL.name()));
-    map.put(MetricGroupType.GROUP_BY_REGION.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_REGION.name()));
-    map.put(MetricGroupType.GROUP_BY_DAY.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_DAY.name()));
-    map.put(MetricGroupType.GROUP_BY_WEEK.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_WEEK.name()));
-    map.put(MetricGroupType.GROUP_BY_MONTH.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_MONTH.name()));
-    map.put(MetricGroupType.GROUP_BY_YEAR.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_YEAR.name()));
-    map.put(MetricGroupType.GROUP_BY_MINUTE.name(), vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_MINUTE.name()));
+    map.put(MetricGroupType.GROUP_BY_URL.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_URL.name()));
+    map.put(MetricGroupType.GROUP_BY_REGION.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_REGION.name()));
+    map.put(MetricGroupType.GROUP_BY_DAY.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_DAY.name()));
+    map.put(MetricGroupType.GROUP_BY_WEEK.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_WEEK.name()));
+    map.put(MetricGroupType.GROUP_BY_MONTH.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_MONTH.name()));
+    map.put(MetricGroupType.GROUP_BY_YEAR.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_YEAR.name()));
+    map.put(MetricGroupType.GROUP_BY_MINUTE.name(),
+      vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_MINUTE.name()));
     return map;
   }
 

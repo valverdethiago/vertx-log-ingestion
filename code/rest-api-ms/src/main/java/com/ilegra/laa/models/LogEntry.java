@@ -5,6 +5,7 @@ import com.ilegra.laa.builders.LogEntryBuilder;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 public class LogEntry implements Serializable {
@@ -31,6 +32,10 @@ public class LogEntry implements Serializable {
     return new LogEntryBuilder();
   }
 
+  public UUID getId() {
+    return id;
+  }
+
   public String getUrl() {
     return url;
   }
@@ -47,19 +52,15 @@ public class LogEntry implements Serializable {
     return region;
   }
 
-  public UUID getId() {
-    return id;
-  }
-
   @Override
   public String toString() {
-    return "LogRequest{" +
-      "id='" + url + '\'' +
-      ", url='" + url + '\'' +
-      ", date=" + date +
-      ", clientId='" + clientId + '\'' +
-      ", region=" + region +
-      '}';
+    return new StringJoiner(", ", LogEntry.class.getSimpleName() + "[", "]")
+      .add("id='" + id + "'")
+      .add("url='" + url + "'")
+      .add("date=" + date)
+      .add("clientId='" + clientId + "'")
+      .add("region=" + region)
+      .toString();
   }
 
   @Override

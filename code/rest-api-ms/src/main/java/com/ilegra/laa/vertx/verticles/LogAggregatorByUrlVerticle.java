@@ -1,8 +1,10 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.KafkaTopic;
+import com.ilegra.laa.models.LogAggregator;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
+import com.ilegra.laa.serialization.LogAggregatorSerde;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.Serdes;
@@ -25,10 +27,28 @@ public class LogAggregatorByUrlVerticle extends AbstractLogStreamVerticle<Long> 
   protected void createAggregatorKafkaStreams(StreamsBuilder builder) {
     builder.stream(this.inputTopicName.name(),
       Consumed.with(Serdes.String(), new LogEntrySerde()))
+      .map( (key, log) -> {
+        return KeyValue.pair(log.getUrl(), log);
+      })
+      .groupByKey()
+      .aggregate(LogAggregator::new,
+        (key, log, logAgg) -> {
+          logAgg.getUrls().add(log);
+          return logAgg;
+        },
+        Materialized.with(Serdes.String(), new LogAggregatorSerde()))
+      .toStream()
+      .map( (key, logAgg) ->  new KeyValue<>(key, logAgg.countUrls()))
+      .to(this.outputTopicName.name(), Produced.with(Serdes.String(), Serdes.Long()));
+    /*
+    builder.stream(this.inputTopicName.name(),
+      Consumed.with(Serdes.String(), new LogEntrySerde()))
       .groupBy( (key, log) -> log.getUrl() )
       .count(Materialized.with(Serdes.String(), Serdes.Long()))
       .toStream()
       .to(this.outputTopicName.name(), Produced.with(Serdes.String(), Serdes.Long()));
+
+     */
   }
 
   @Override
