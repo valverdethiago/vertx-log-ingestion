@@ -7,6 +7,7 @@ import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.LogEntrySerializer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
 import io.vertx.kafka.client.producer.KafkaProducer;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
@@ -21,34 +22,33 @@ import java.util.UUID;
 public class LogProducerVerticle extends AbstractVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(LogProducerVerticle.class);
+  private KafkaProducer<String, LogEntry> kafkaProducer;
 
   @Override
   public void start(final Promise<Void> startPromise) {
     final Map<String, String> config = createKafkaProducerConfig();
-    final KafkaProducer<String, LogEntry> kafkaProducer = KafkaProducer.create(vertx, config);
-
-    vertx.eventBus().localConsumer(EventBusAddress.LOG_RECEIVED.name(), message -> {
-      final String key = UUID.randomUUID().toString();
-      LogEntry log = (LogEntry) message.body();
-      String json = Json.encodePrettily(log);
-      LOG.debug("Log received successfully {} | {}", log, json);
-
-      final KafkaProducerRecord<String, LogEntry> kafkaProducerRecord = KafkaProducerRecord
-        .create(KafkaTopic.LOGS_INPUT.name(), key, log);
-
-      kafkaProducer.send(kafkaProducerRecord, result -> {
-        if (result.failed()) {
-          LOG.error("message produce error {} : {}", result.cause(), kafkaProducerRecord);
-          return;
-        }
-
-        LOG.info("message produced. key: {} | value: {}",
-          kafkaProducerRecord.key(),
-          kafkaProducerRecord.value());
-      });
-    });
-
+    kafkaProducer = KafkaProducer.create(vertx, config);
+    vertx.eventBus().localConsumer(EventBusAddress.LOG_RECEIVED.name(), this::consumeMessage);
     startPromise.complete();
+  }
+
+  private void consumeMessage(Message<LogEntry> message) {
+    String json = Json.encodePrettily(message.body());
+    LOG.debug("Log received successfully {} | {}", message.body(), json);
+
+    final KafkaProducerRecord<String, LogEntry> kafkaProducerRecord = KafkaProducerRecord
+      .create(KafkaTopic.LOGS_INPUT.name(), message.body().getId().toString(), message.body());
+
+    kafkaProducer.send(kafkaProducerRecord, result -> {
+      if (result.failed()) {
+        LOG.error("message produce error {} : {}", result.cause(), kafkaProducerRecord);
+        return;
+      }
+
+      LOG.info("message produced. key: {} | value: {}",
+        kafkaProducerRecord.key(),
+        kafkaProducerRecord.value());
+    });
   }
 
   private Map<String, String> createKafkaProducerConfig() {

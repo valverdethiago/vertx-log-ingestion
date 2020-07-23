@@ -1,9 +1,8 @@
 package com.ilegra.laa.models;
 
-import com.ilegra.laa.builders.SearchFilterBuilder;
+import com.ilegra.laa.models.builders.SearchFilterBuilder;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.StringJoiner;
 
 public class SearchFilter implements Serializable {

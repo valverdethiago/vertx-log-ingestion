@@ -1,9 +1,8 @@
 package com.ilegra.laa.vertx.verticles;
 
+import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.KafkaTopic;
-import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
-import com.ilegra.laa.serialization.LogAggregatorDeserializer;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -115,11 +114,14 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
   }
 
   private void handleMetricUpdates(KafkaConsumerRecord<String, T> record) {
+    /*
     SharedData sd = vertx.sharedData();
     LocalMap<String, String> map1 = sd.getLocalMap(this.metricGroupType.name());
     map1.put(record.key(), this.serializeAggregator(record.value()));
+    */
     LOG.debug("Processing topic = {}, key= {},value= {}, partition = {}, offset = {}", this.outputTopicName.name(),
       record.key(), record.value(), record.partition(), record.offset());
+    vertx.eventBus().send(this.metricGroupType.name(), record.value());
   }
 
 
@@ -135,8 +137,8 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     final Properties config = new Properties();
     // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
     // against which the application is run.
-    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "laa-"+this.metricGroupType.name());
-    config.put(StreamsConfig.CLIENT_ID_CONFIG, "laa-client-"+this.metricGroupType.name());
+    config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-analytics-application-"+this.metricGroupType.name());
+    config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-analytics-application-client-"+this.metricGroupType.name());
     // Where to find Kafka broker(s).
     config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
     // Specify default (de)serializers for record keys and for record values.
@@ -145,7 +147,7 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     config.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/laa/state-dir");
     // Records should be flushed every 10 seconds. This is less than the default
     // in order to keep this example interactive.
-    config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
+    config.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 1 * 1000);
     // For illustrative purposes we disable record caches.
     config.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
     return config;
@@ -170,5 +172,4 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
    */
   protected abstract void createAggregatorKafkaStreams(final StreamsBuilder builder);
 
-  protected abstract String serializeAggregator(final T aggregator);
 }

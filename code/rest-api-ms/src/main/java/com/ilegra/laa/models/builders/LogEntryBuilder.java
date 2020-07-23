@@ -1,4 +1,4 @@
-package com.ilegra.laa.builders;
+package com.ilegra.laa.models.builders;
 
 import com.ilegra.laa.models.AwsRegion;
 import com.ilegra.laa.models.LogEntry;

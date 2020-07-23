@@ -5,7 +5,7 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.Json;
 
-public class LogRequestCodec implements MessageCodec<LogEntry, LogEntry> {
+public class LogEntryCodec implements MessageCodec<LogEntry, LogEntry> {
   @Override
   public void encodeToWire(Buffer buffer, LogEntry logEntry) {
     String json = Json.encodePrettily(logEntry);
@@ -26,7 +26,7 @@ public class LogRequestCodec implements MessageCodec<LogEntry, LogEntry> {
 
   @Override
   public String name() {
-    return LogRequestCodec.class.getSimpleName();
+    return LogEntryCodec.class.getSimpleName();
   }
 
   @Override

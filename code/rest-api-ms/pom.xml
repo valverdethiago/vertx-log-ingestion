@@ -24,18 +24,18 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <main.class>com.ilegra.laa.Application</main.class>
 
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
-    <vertx.version>3.9.1</vertx.version>
+    <jersey-server.version>2.31</jersey-server.version>
     <junit-jupiter.version>5.4.0</junit-jupiter.version>
     <logback.version>1.2.3</logback.version>
     <kafka.version> 5.5.0-ccs</kafka.version>
+    <vertx.version>3.9.1</vertx.version>
     <zandero.version>0.9.1</zandero.version>
-
-    <main.verticle>com.ilegra.laa.vertx.verticles.HttpServerVerticle</main.verticle>
   </properties>
 
   <dependencyManagement>
@@ -88,10 +88,13 @@
     <dependency>
       <groupId>org.glassfish.jersey.core</groupId>
       <artifactId>jersey-server</artifactId>
-      <version>2.31</version>
+      <version>${jersey-server.version}</version>
     </dependency>
-
-
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-redis-client</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>io.vertx</groupId>
@@ -136,8 +139,7 @@
                 <transformer
                   implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
-                    <Main-Class>io.vertx.core.Launcher</Main-Class>
-                    <Main-Verticle>${main.verticle}</Main-Verticle>
+                    <Main-Class>${main.class}</Main-Class>
                   </manifestEntries>
                 </transformer>
                 <transformer

@@ -1,25 +1,28 @@
 package com.ilegra.laa.models;
 
+import com.ilegra.laa.models.ranking.RankingEntry;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class LogAggregator implements Serializable {
   private Set<LogEntry> urls;
-  private Set<LogRanking> ranking;
+  private Set<RankingEntry> ranking;
 
   public LogAggregator() {
     this.urls = new HashSet<>();
-    this.ranking = new HashSet<>();
+    this.ranking = new TreeSet<>();
   }
 
   public Set<LogEntry> getUrls() {
     return urls;
   }
 
-  public Set<LogRanking> getRanking() {
+  public Set<RankingEntry> getRanking() {
     return ranking;
   }
 
@@ -35,7 +38,7 @@ public class LogAggregator implements Serializable {
     this.ranking =
       urls.stream()
         .collect(Collectors.groupingBy(LogEntry::getUrl, Collectors.counting()))
-        .entrySet().stream().map(entry -> new LogRanking(entry.getKey(), entry.getValue()))
+        .entrySet().stream().map(entry -> new RankingEntry(entry.getKey(), entry.getValue()))
     .collect(Collectors.toSet());
   }
 

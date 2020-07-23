@@ -46,8 +46,8 @@ services:
       - schema-registry
       - zoo
     volumes:
-      - kafka-setup-connectors:/tmp/connectors
-      - kafka-setup-dashboard:/tmp/dashboard
+      - kafka-setup-connectors-volume:/tmp/connectors
+      - kafka-setup-dashboard-volume:/tmp/dashboard
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
                        cub kafka-ready -b kafka:19092 1 20 && \
                        kafka-topics --create --if-not-exists --zookeeper zoo:2181 --partitions 1 --replication-factor 1 --topic LOGS_INPUT && \
@@ -78,6 +78,7 @@ services:
 
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
+    restart: unless-stopped
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
@@ -88,6 +89,20 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: "zoo:2181"
+  
+  redis:
+    image: "redis:alpine"
+    restart: unless-stopped
+    hostname: redis
+    container_name: redis
+    command: redis-server --requirepass Illegra2020!
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data-volume:/var/lib/redis
+      - redis-conf-volume:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=master
 
 volumes:
   kafka-volume:
@@ -96,8 +111,12 @@ volumes:
     external: false
   zzo-datalog-volume:
     external: false
-  kafka-setup-connectors:
+  kafka-setup-connectors-volume:
     external: false
-  kafka-setup-dashboard:
+  kafka-setup-dashboard-volume:
+    external: false
+  redis-data-volume:
+    external: false
+  redis-conf-volume:
     external: false
 

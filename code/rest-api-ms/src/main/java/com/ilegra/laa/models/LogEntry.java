@@ -1,6 +1,6 @@
 package com.ilegra.laa.models;
 
-import com.ilegra.laa.builders.LogEntryBuilder;
+import com.ilegra.laa.models.builders.LogEntryBuilder;
 
 import java.io.Serializable;
 import java.time.Instant;
