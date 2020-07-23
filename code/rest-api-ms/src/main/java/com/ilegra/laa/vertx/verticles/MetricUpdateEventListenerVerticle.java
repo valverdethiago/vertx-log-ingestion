@@ -18,11 +18,10 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MetricUpdateEventListenerVerticle extends AbstractVerticle {
+public class MetricUpdateEventListenerVerticle extends AbstractRedisVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(MetricUpdateEventListenerVerticle.class);
 
-  private RedisClient redisClient;
 
   @Override
   public void start(final Promise<Void> startPromise) {
@@ -36,15 +35,6 @@ public class MetricUpdateEventListenerVerticle extends AbstractVerticle {
       (message)->this.consumeMessage(MetricGroupType.GROUP_BY_MINUTE, message));
     vertx.eventBus().localConsumer(MetricGroupType.GROUP_BY_URL.name(),
       (message)->this.consumeMessage(MetricGroupType.GROUP_BY_URL, message));
-  }
-
-  private void startRedisClient(Promise<Void> startPromise) {
-    RedisOptions options = new RedisOptions()
-      .setHost("localhost")
-      .setPort(6379)
-      .setAuth("Illegra2020!")
-      .setSelect(1);
-    this.redisClient = RedisClient.create(vertx, options);
   }
 
   private void consumeMessage(MetricGroupType metricGroupType, Message<?> message) {

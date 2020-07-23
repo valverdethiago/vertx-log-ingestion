@@ -2,28 +2,24 @@ package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
-import io.vertx.redis.RedisClient;
-import io.vertx.redis.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.vertx.redis.RedisOptions;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-public class GroupedMetricUpdateEventListenerVerticle extends AbstractVerticle {
+public class GroupedMetricUpdateEventListenerVerticle extends AbstractRedisVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(GroupedMetricUpdateEventListenerVerticle.class);
 
-  private RedisClient redisClient;
-
   @Override
   public void start(final Promise<Void> startPromise) {
-    this.startRedisClient(startPromise);
+    super.startRedisClient(startPromise);
     this.startEventConsumers();
     startPromise.complete();
   }
@@ -39,11 +35,6 @@ public class GroupedMetricUpdateEventListenerVerticle extends AbstractVerticle {
       (message)->this.consumeMessage(MetricGroupType.GROUP_BY_DAY, message));
     vertx.eventBus().localConsumer(MetricGroupType.GROUP_BY_REGION.name(),
       (message)->this.consumeMessage(MetricGroupType.GROUP_BY_REGION, message));
-  }
-
-  private void startRedisClient(Promise<Void> startPromise) {
-    RedisOptions options = new RedisOptions().setHost("localhost").setPort(6379).setAuth("Illegra2020!").setSelect(1);
-    this.redisClient = RedisClient.create(vertx, options);
   }
 
   private void consumeMessage(MetricGroupType metricGroupType, Message<?> message) {

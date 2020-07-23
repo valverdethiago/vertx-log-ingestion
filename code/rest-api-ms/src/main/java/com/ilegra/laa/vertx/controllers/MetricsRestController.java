@@ -3,6 +3,8 @@ package com.ilegra.laa.vertx.controllers;
 import com.ilegra.laa.models.*;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.redis.RedisClient;
+import io.vertx.redis.RedisOptions;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -23,6 +25,13 @@ public class MetricsRestController {
 
   private static final Integer DEFAULT_SEARCH_SIZE = 3;
   private static String VALID_WEEK_REGEX = "(\\d{1,2})\\-(\\d{1,4})";
+
+  protected final RedisClient redisClient;
+
+  public MetricsRestController() {
+    RedisOptions options = new RedisOptions().setHost("localhost").setPort(6379).setAuth("Illegra2020!").setSelect(1);
+    this.redisClient = RedisClient.create(Vertx.vertx(), options);
+  }
 
   @Path("/{groupBy}")
   @GET
