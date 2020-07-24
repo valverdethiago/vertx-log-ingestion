@@ -12,7 +12,7 @@ public enum SearchOrder {
     if(name == null || name.trim().isEmpty())
       return null;
     return Arrays.stream(SearchOrder.values())
-      .filter(region -> region.name().equals(name))
+      .filter(region -> region.name().equalsIgnoreCase(name))
       .findFirst().orElseThrow(()->
         new ValidationException("Invalid value for search order")
       );

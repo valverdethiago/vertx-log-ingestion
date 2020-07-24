@@ -7,6 +7,7 @@ import com.ilegra.laa.models.search.SearchOrder;
 import com.ilegra.laa.models.builders.MetricResponseWrapperBuilder;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.redis.RedisClient;
@@ -92,6 +93,24 @@ public class MetricCacheServiceImpl implements MetricCacheService {
     return this.limitAndOrderResponse(searchFilter, responseBuilder.build());
   }
 
+  @Override
+  public void save(MetricGroupType metricGroupType, GroupedRankingEntry entry) {
+
+    final Set<GroupedRankingEntry> rankingToBeCached = new HashSet<>();
+    rankingToBeCached.add(entry);
+    this.redisClient.get(metricGroupType.name(), responseAsyncResult -> {
+      if(responseAsyncResult.succeeded() && responseAsyncResult.result() != null) {
+        GroupedRankingEntry[] currentRankingEntries = Json.decodeValue(responseAsyncResult.result(),
+          GroupedRankingEntry[].class);
+        rankingToBeCached.addAll(Arrays.asList(currentRankingEntries));
+      }
+      this.redisClient.set(
+        metricGroupType.name(),
+        Json.encodePrettily(rankingToBeCached),
+        this::handleRedisUpdate);
+    });
+  }
+
   private MetricResponseWrapper limitAndOrderResponse(SearchFilter searchFilter,
                                                       MetricResponseWrapper responseWrapper) {
     if(responseWrapper.getGroupedRankingEntries() != null &&
@@ -146,5 +165,14 @@ public class MetricCacheServiceImpl implements MetricCacheService {
         this.getMetrics(MetricGroupType.GROUP_BY_YEAR, searchFilter.getYear())
       );
 
+  }
+
+  private void handleRedisUpdate(AsyncResult<Void> voidAsyncResult) {
+    if(voidAsyncResult.succeeded()) {
+      LOG.debug("Metric update saved successfully on Redis ");
+    }
+    else {
+      LOG.debug("Error saving the metric update on Redis ");
+    }
   }
 }
