@@ -110,6 +110,22 @@ public class MetricCacheServiceImpl implements MetricCacheService {
         this::handleRedisUpdate);
     });
   }
+  @Override
+  public void save(MetricGroupType metricGroupType, RankingEntry entry) {
+    final Set<RankingEntry> rankingToBeCached = new HashSet<>();
+    rankingToBeCached.add(entry);
+    this.redisClient.get(metricGroupType.name(), responseAsyncResult -> {
+      if(responseAsyncResult.succeeded() && responseAsyncResult.result() != null) {
+        RankingEntry[] currentRankingEntries = Json.decodeValue(responseAsyncResult.result(),
+          RankingEntry[].class);
+        rankingToBeCached.addAll(Arrays.asList(currentRankingEntries));
+      }
+      this.redisClient.set(
+        metricGroupType.name(),
+        Json.encodePrettily(rankingToBeCached),
+        this::handleRedisUpdate);
+    });
+  }
 
   private MetricResponseWrapper limitAndOrderResponse(SearchFilter searchFilter,
                                                       MetricResponseWrapper responseWrapper) {
