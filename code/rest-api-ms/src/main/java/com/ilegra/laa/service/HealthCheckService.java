@@ -1,8 +1,10 @@
 package com.ilegra.laa.service;
 
 import io.vertx.ext.healthchecks.HealthCheckHandler;
+import org.apache.kafka.streams.KafkaStreams;
 
 public interface HealthCheckService {
 
-  public HealthCheckHandler createHealthCheckHandler();
+  HealthCheckHandler createHealthCheckHandler();
+  void registerHealthCheckHandler(String name, KafkaStreams kafkaStreams);
 }

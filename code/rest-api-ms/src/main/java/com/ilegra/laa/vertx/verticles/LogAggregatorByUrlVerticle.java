@@ -9,6 +9,7 @@ import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.RankingEntryDeserializer;
 import com.ilegra.laa.serialization.RankingEntrySerde;
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.service.HealthCheckService;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -21,8 +22,9 @@ import javax.inject.Inject;
 public class LogAggregatorByUrlVerticle extends AbstractLogStreamVerticle<RankingEntry> {
 
   @Inject
-  public LogAggregatorByUrlVerticle(ServerSettings settings) {
-    super(settings,
+  public LogAggregatorByUrlVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
+    super(healthCheckService,
+      settings,
       MetricGroupType.GROUP_BY_URL,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_URL_OUTPUT,

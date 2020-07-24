@@ -1,9 +1,10 @@
 package com.ilegra.laa.vertx.verticles;
 
+import com.ilegra.laa.config.ServerSettings;
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.serialization.LogEntrySerde;
-import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.service.HealthCheckService;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
@@ -29,15 +30,19 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
   protected final KafkaTopic inputTopicName;
   protected final KafkaTopic outputTopicName;
   protected final Class<? extends Deserializer<T>> deserializerClass;
+  private final HealthCheckService healthCheckService;
 
   private KafkaStreams streams;
   private KafkaConsumer<String, T> consumer;
 
-  public AbstractLogStreamVerticle(ServerSettings settings,
+
+  public AbstractLogStreamVerticle(HealthCheckService healthCheckService,
+                                   ServerSettings settings,
                                    MetricGroupType metricGroupType,
                                    KafkaTopic inputTopicName,
                                    KafkaTopic outputTopicName,
                                    Class<? extends Deserializer<T>> deserializerClass) {
+    this.healthCheckService = healthCheckService;
     this.settings = settings;
     this.metricGroupType = metricGroupType;
     this.inputTopicName = inputTopicName;
@@ -63,6 +68,7 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
       this.streams = new KafkaStreams(builder.build(), streamsConfiguration);
       streams.cleanUp();
       streams.start();
+
     }, res ->{
       if (res.succeeded()) {
         LOG.info("Started Kafka Streams {}", this.getClass().getSimpleName());

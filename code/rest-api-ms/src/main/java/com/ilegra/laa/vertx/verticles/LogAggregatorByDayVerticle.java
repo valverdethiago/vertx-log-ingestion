@@ -5,6 +5,7 @@ import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.service.HealthCheckService;
 
 import javax.inject.Inject;
 import java.text.DateFormat;
@@ -16,8 +17,9 @@ public class LogAggregatorByDayVerticle extends AbstractLogAggregatorVerticle {
   private final static DateFormat DATE_FORMAT = new SimpleDateFormat(DatePattern.DAY.getPattern());
 
   @Inject
-  public LogAggregatorByDayVerticle(ServerSettings settings) {
-    super(settings,
+  public LogAggregatorByDayVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
+    super(healthCheckService,
+      settings,
       MetricGroupType.GROUP_BY_DAY,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_DAY_OUTPUT);

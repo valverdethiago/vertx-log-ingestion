@@ -8,6 +8,7 @@ import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.serialization.GroupedRankingEntryDeserializer;
 import com.ilegra.laa.serialization.JsonPojoSerde;
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.service.HealthCheckService;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -19,11 +20,13 @@ import java.util.ArrayList;
 
 public abstract class AbstractLogAggregatorVerticle extends AbstractLogStreamVerticle<GroupedRankingEntry> {
 
-  public AbstractLogAggregatorVerticle(ServerSettings settings,
+  public AbstractLogAggregatorVerticle(HealthCheckService healthCheckService,
+                                       ServerSettings settings,
                                        MetricGroupType metricGroupType,
                                        KafkaTopic inputTopicName,
                                        KafkaTopic outputTopicName) {
-    super(settings,
+    super(healthCheckService,
+      settings,
       metricGroupType,
       inputTopicName,
       outputTopicName,

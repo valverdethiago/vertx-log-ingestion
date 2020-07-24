@@ -6,6 +6,7 @@ import com.ilegra.laa.injection.ServiceModule;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
+import com.ilegra.laa.service.HealthCheckService;
 import com.ilegra.laa.vertx.codecs.GroupedRankingEntryCodec;
 import com.ilegra.laa.vertx.codecs.LogEntryCodec;
 import com.ilegra.laa.vertx.codecs.RankingEntryCodec;
@@ -14,15 +15,14 @@ import com.intapp.vertx.guice.GuiceVerticleFactory;
 import com.intapp.vertx.guice.GuiceVertxDeploymentManager;
 import com.zandero.cmd.CommandLineException;
 import com.ilegra.laa.config.ServerSettings;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
+import io.vertx.core.*;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Application {
@@ -43,7 +43,7 @@ public class Application {
         .setClusterManager(mgr)
         .setMaxEventLoopExecuteTime(Long.MAX_VALUE);
       Vertx.clusteredVertx(options, res -> {
-        if(res.succeeded()) {
+        if (res.succeeded()) {
 
           Vertx vertx = res.result();
           Injector injector = Guice.createInjector(new ServiceModule(vertx, settings));
@@ -57,7 +57,6 @@ public class Application {
           vertx.eventBus().registerDefaultCodec(LogEntry.class, new LogEntryCodec());
           vertx.eventBus().registerDefaultCodec(RankingEntry.class, new RankingEntryCodec());
           vertx.eventBus().registerDefaultCodec(GroupedRankingEntry.class, new GroupedRankingEntryCodec());
-          deploymentManager.deployVerticle(HttpServerVerticle.class, deploymentOptions);
           deploymentManager.deployVerticle(LogProducerVerticle.class, deploymentOptions);
           deploymentManager.deployVerticle(MetricUpdateEventListenerVerticle.class, deploymentOptions);
           deploymentManager.deployVerticle(GroupedMetricUpdateEventListenerVerticle.class, deploymentOptions);
@@ -68,21 +67,32 @@ public class Application {
           deploymentManager.deployVerticle(LogAggregatorByWeekVerticle.class, deploymentOptions);
           deploymentManager.deployVerticle(LogAggregatorByMonthVerticle.class, deploymentOptions);
           deploymentManager.deployVerticle(LogAggregatorByYearVerticle.class, deploymentOptions);
-
-        }
-        else {
+          deploymentManager.deployVerticle(HttpServerVerticle.class, deploymentOptions);
+        } else {
           log.error("Could not start verticle: ", res.failed());
         }
       });
-    }
-    catch (CommandLineException ex) {
+    } catch (CommandLineException ex) {
       log.error("Invalid settings: ", ex);
       showHelp(settings.getHelp());
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       log.error("Unhandled exception: ", e);
       System.out.println(e.getMessage());
     }
+  }
+
+  private <T extends AbstractVerticle> Future<Object> futureDeployment(
+    GuiceVertxDeploymentManager deploymentManager,
+    DeploymentOptions deploymentOptions,
+    Class<T> verticleClass) {
+    return Future.future(promise -> {
+      deploymentManager.deployVerticle(verticleClass, deploymentOptions, handler -> {
+        if (handler.succeeded())
+          promise.complete();
+        else
+          promise.fail("Could not deploy verticle " + verticleClass);
+      });
+    });
   }
 
   private void showHelp(List<String> help) {

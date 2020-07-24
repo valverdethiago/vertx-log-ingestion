@@ -4,6 +4,7 @@ import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.service.HealthCheckService;
 
 import javax.inject.Inject;
 import java.time.ZoneId;
@@ -14,8 +15,9 @@ import java.util.GregorianCalendar;
 public class LogAggregatorByWeekVerticle extends AbstractLogAggregatorVerticle {
 
   @Inject
-  public LogAggregatorByWeekVerticle(ServerSettings settings) {
-    super(settings,
+  public LogAggregatorByWeekVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
+    super(healthCheckService,
+      settings,
       MetricGroupType.GROUP_BY_WEEK,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_WEEK_OUTPUT);
