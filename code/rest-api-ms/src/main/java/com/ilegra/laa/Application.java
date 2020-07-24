@@ -18,10 +18,10 @@ import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.ilegra.laa.config.ServerSettings;
 
 import java.util.List;
 

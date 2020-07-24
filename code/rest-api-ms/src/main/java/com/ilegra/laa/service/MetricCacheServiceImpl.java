@@ -8,7 +8,6 @@ import com.ilegra.laa.models.builders.MetricResponseWrapperBuilder;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
 import com.ilegra.laa.config.ServerSettings;
-import com.ilegra.laa.vertx.health.ComponentState;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
@@ -21,7 +20,6 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -32,21 +30,19 @@ public class MetricCacheServiceImpl implements MetricCacheService {
 
   private final ServerSettings settings;
   private final Vertx vertx;
+  private final RedisOptions redisOptions;
 
 
   @Inject
-  public MetricCacheServiceImpl(Vertx vertx, ServerSettings settings) {
+  public MetricCacheServiceImpl(Vertx vertx, ServerSettings settings, RedisOptions redisOptions) {
     this.vertx = vertx;
     this.settings = settings;
+    this.redisOptions = redisOptions;
+
   }
 
   private RedisClient getRedisConnection() {
-    RedisOptions options = new RedisOptions()
-      .setHost(settings.getRedisHost())
-      .setPort(settings.getRedisPort())
-      .setAuth(settings.getRedisPassword())
-      .setSelect(1);
-    return RedisClient.create(vertx, options);
+    return RedisClient.create(vertx, redisOptions);
 
   }
 
@@ -142,26 +138,6 @@ public class MetricCacheServiceImpl implements MetricCacheService {
         Json.encodePrettily(rankingToBeCached),
         res -> this.handleRedisUpdate(res, redisClient));
     });
-  }
-
-  @Override
-  public ComponentState getRedisConnectionState() {
-    final CountDownLatch latch = new CountDownLatch(1);
-    final ComponentState state = ComponentState.off();
-    try {
-      RedisClient redisClient = getRedisConnection();
-      redisClient.ping(responseAsyncResult -> {
-        if (responseAsyncResult.succeeded()) {
-          state.setWorking(true);
-          redisClient.close(handler ->{});
-        }
-        latch.countDown();
-      });
-      latch.await(2, TimeUnit.SECONDS);
-    } catch (Exception ex) {
-      LOG.error("Error checking Redis connection");
-    }
-    return state;
   }
 
   private MetricResponseWrapper limitAndOrderResponse(SearchFilter searchFilter,

@@ -5,7 +5,6 @@ import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
 import com.ilegra.laa.models.search.MetricResponseWrapper;
 import com.ilegra.laa.models.search.SearchFilter;
-import com.ilegra.laa.vertx.health.ComponentState;
 
 import java.util.List;
 
@@ -19,5 +18,4 @@ public interface MetricCacheService {
 
   void save(MetricGroupType metricGroupType, RankingEntry entry);
 
-  ComponentState getRedisConnectionState();
 }

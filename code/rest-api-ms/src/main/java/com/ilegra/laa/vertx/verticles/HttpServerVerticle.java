@@ -1,7 +1,7 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.injection.GuiceInjectionProvider;
-import com.ilegra.laa.vertx.controllers.HealthCheckRestController;
+import com.ilegra.laa.service.HealthCheckService;
 import com.ilegra.laa.vertx.controllers.LogIngestionRestController;
 import com.ilegra.laa.vertx.controllers.MetricsRestController;
 import com.ilegra.laa.vertx.controllers.SimpleMetricsRestController;
@@ -9,6 +9,7 @@ import com.zandero.rest.RestBuilder;
 import com.ilegra.laa.config.ServerSettings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
@@ -23,10 +24,12 @@ public class HttpServerVerticle extends AbstractVerticle {
   private final static Logger LOG = LoggerFactory.getLogger(HttpServerVerticle.class);
 
   private final ServerSettings settings;
+  private final HealthCheckService healthCheckService;
 
   @Inject
-  public HttpServerVerticle(ServerSettings settings) {
+  public HttpServerVerticle(ServerSettings settings, HealthCheckService healthCheckService) {
     this.settings = settings;
+    this.healthCheckService = healthCheckService;
   }
 
   @Override
@@ -36,11 +39,11 @@ public class HttpServerVerticle extends AbstractVerticle {
     new RestBuilder(router)
       .injectWith(new GuiceInjectionProvider(vertx, settings))
       .register(
-        HealthCheckRestController.class,
         LogIngestionRestController.class,
         MetricsRestController.class,
         SimpleMetricsRestController.class)
       .build();
+    router.get(API_PATH+"/health").handler(healthCheckService.createHealthCheckHandler());
 
 
     vertx.createHttpServer().requestHandler(router).listen(settings.getPort(), res -> {
