@@ -4,24 +4,24 @@ import com.ilegra.laa.models.builders.GlobalMetricsWrapperBuilder;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
 
-import java.util.Set;
+import java.util.List;
 
 public class GlobalMetricsWrapper {
-  private Set<GroupedRankingEntry> rankingByDay;
-  private Set<RankingEntry> rankingByMinute;
-  private Set<GroupedRankingEntry> rankingByMonth;
-  private Set<GroupedRankingEntry> rankingByRegion;
-  private Set<RankingEntry> rankingByUrl;
-  private Set<GroupedRankingEntry> rankingByWeek;
-  private Set<GroupedRankingEntry> rankingByYear;
+  private List<GroupedRankingEntry> rankingByDay;
+  private List<RankingEntry> rankingByMinute;
+  private List<GroupedRankingEntry> rankingByMonth;
+  private List<GroupedRankingEntry> rankingByRegion;
+  private List<RankingEntry> rankingByUrl;
+  private List<GroupedRankingEntry> rankingByWeek;
+  private List<GroupedRankingEntry> rankingByYear;
 
-  public GlobalMetricsWrapper(Set<GroupedRankingEntry> rankingByDay,
-                              Set<RankingEntry> rankingByMinute,
-                              Set<GroupedRankingEntry> rankingByMonth,
-                              Set<GroupedRankingEntry> rankingByRegion,
-                              Set<RankingEntry> rankingByUrl,
-                              Set<GroupedRankingEntry> rankingByWeek,
-                              Set<GroupedRankingEntry> rankingByYear) {
+  public GlobalMetricsWrapper(List<GroupedRankingEntry> rankingByDay,
+                              List<RankingEntry> rankingByMinute,
+                              List<GroupedRankingEntry> rankingByMonth,
+                              List<GroupedRankingEntry> rankingByRegion,
+                              List<RankingEntry> rankingByUrl,
+                              List<GroupedRankingEntry> rankingByWeek,
+                              List<GroupedRankingEntry> rankingByYear) {
     this.rankingByDay = rankingByDay;
     this.rankingByMinute = rankingByMinute;
     this.rankingByMonth = rankingByMonth;
@@ -35,31 +35,31 @@ public class GlobalMetricsWrapper {
     return new GlobalMetricsWrapperBuilder();
   }
 
-  public Set<GroupedRankingEntry> getRankingByDay() {
+  public List<GroupedRankingEntry> getRankingByDay() {
     return rankingByDay;
   }
 
-  public Set<RankingEntry> getRankingByMinute() {
+  public List<RankingEntry> getRankingByMinute() {
     return rankingByMinute;
   }
 
-  public Set<GroupedRankingEntry> getRankingByMonth() {
+  public List<GroupedRankingEntry> getRankingByMonth() {
     return rankingByMonth;
   }
 
-  public Set<GroupedRankingEntry> getRankingByRegion() {
+  public List<GroupedRankingEntry> getRankingByRegion() {
     return rankingByRegion;
   }
 
-  public Set<RankingEntry> getRankingByUrl() {
+  public List<RankingEntry> getRankingByUrl() {
     return rankingByUrl;
   }
 
-  public Set<GroupedRankingEntry> getRankingByWeek() {
+  public List<GroupedRankingEntry> getRankingByWeek() {
     return rankingByWeek;
   }
 
-  public Set<GroupedRankingEntry> getRankingByYear() {
+  public List<GroupedRankingEntry> getRankingByYear() {
     return rankingByYear;
   }
 }

@@ -1,18 +1,18 @@
 package com.ilegra.laa.models.ranking;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.StringJoiner;
 
 public class GroupedRankingEntry implements Serializable {
   private String key;
-  private Set<RankingEntry> ranking;
+  private List<RankingEntry> ranking;
 
   public GroupedRankingEntry() {
   }
 
-  public GroupedRankingEntry(String key, Set<RankingEntry> ranking) {
+  public GroupedRankingEntry(String key, List<RankingEntry> ranking) {
     this.key = key;
     this.ranking = ranking;
   }
@@ -46,11 +46,11 @@ public class GroupedRankingEntry implements Serializable {
     this.key = key;
   }
 
-  public Set<RankingEntry> getRanking() {
+  public List<RankingEntry> getRanking() {
     return ranking;
   }
 
-  public void setRanking(Set<RankingEntry> ranking) {
+  public void setRanking(List<RankingEntry> ranking) {
     this.ranking = ranking;
   }
 }

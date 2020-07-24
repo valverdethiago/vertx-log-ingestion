@@ -16,6 +16,8 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+
 public abstract class AbstractLogAggregatorVerticle extends AbstractLogStreamVerticle<GroupedRankingEntry> {
 
   private final static Logger LOG = LoggerFactory.getLogger(AbstractLogAggregatorVerticle.class);
@@ -48,7 +50,7 @@ public abstract class AbstractLogAggregatorVerticle extends AbstractLogStreamVer
       .toStream()
       .map( (key, logAgg) -> {
         logAgg.generateRanking();
-        GroupedRankingEntry entry = new GroupedRankingEntry(key, logAgg.getRanking());
+        GroupedRankingEntry entry = new GroupedRankingEntry(key, new ArrayList<>(logAgg.getRanking()));
         return new KeyValue<>(key, entry);
       })
       .to(this.outputTopicName.name(), Produced.with(Serdes.String(), new JsonPojoSerde<>(GroupedRankingEntry.class)));

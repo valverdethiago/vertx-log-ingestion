@@ -8,28 +8,26 @@ import java.util.StringJoiner;
 public class SearchFilter implements Serializable {
 
   private SearchOrder order;
-  private SearchGroupBy groupBy ;
-  private Integer size;
+  private SearchType type ;
+  private Long size;
   private String day;
   private String week;
   private String month;
   private String year;
   private String minute;
-  private String searchTerm;
 
   public SearchFilter() {
   }
 
-  public SearchFilter(SearchOrder order, SearchGroupBy groupBy, Integer size, String day, String week, String month, String year, String minute, String searchTerm) {
+  public SearchFilter(SearchOrder order, SearchType type, Long size, String day, String week, String month, String year, String minute) {
     this.order = order;
-    this.groupBy = groupBy;
+    this.type = type;
     this.size = size;
     this.day = day;
     this.week = week;
     this.month = month;
     this.year = year;
     this.minute = minute;
-    this.searchTerm = searchTerm;
   }
 
   public static SearchFilterBuilder builder() {
@@ -40,11 +38,11 @@ public class SearchFilter implements Serializable {
     return order;
   }
 
-  public SearchGroupBy getGroupBy() {
-    return groupBy;
+  public SearchType getType() {
+    return type;
   }
 
-  public Integer getSize() {
+  public Long getSize() {
     return size;
   }
 
@@ -68,19 +66,11 @@ public class SearchFilter implements Serializable {
     return minute;
   }
 
-  public String getSearchTerm() {
-    return searchTerm;
-  }
-
-  public void setSearchTerm(String searchTerm) {
-    this.searchTerm = searchTerm;
-  }
-
   @Override
   public String toString() {
     return new StringJoiner(", ", SearchFilter.class.getSimpleName() + "[", "]")
       .add("order=" + order)
-      .add("groupBy=" + groupBy)
+      .add("groupBy=" + type)
       .add("size=" + size)
       .add("day=" + day)
       .add("week='" + week + "'")

@@ -1,13 +1,13 @@
 package com.ilegra.laa.models.builders;
 
 import com.ilegra.laa.models.SearchFilter;
-import com.ilegra.laa.models.SearchGroupBy;
+import com.ilegra.laa.models.SearchType;
 import com.ilegra.laa.models.SearchOrder;
 
 public class SearchFilterBuilder {
   private SearchOrder order;
-  private SearchGroupBy groupBy;
-  private Integer size;
+  private SearchType type;
+  private Long size;
   private String day;
   private String week;
   private String month;
@@ -20,12 +20,12 @@ public class SearchFilterBuilder {
     return this;
   }
 
-  public SearchFilterBuilder groupBy(SearchGroupBy groupBy) {
-    this.groupBy = groupBy;
+  public SearchFilterBuilder type(SearchType type) {
+    this.type = type;
     return this;
   }
 
-  public SearchFilterBuilder size(Integer size) {
+  public SearchFilterBuilder size(Long size) {
     this.size = size;
     return this;
   }
@@ -60,7 +60,7 @@ public class SearchFilterBuilder {
     return this;
   }
 
-  public SearchFilter createSearchFilter() {
-    return new SearchFilter(order, groupBy, size, day, week, month, year, minute, searchTerm);
+  public SearchFilter build() {
+    return new SearchFilter(order, type, size, day, week, month, year, minute);
   }
 }

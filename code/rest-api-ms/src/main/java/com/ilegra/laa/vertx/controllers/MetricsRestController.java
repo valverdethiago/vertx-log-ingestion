@@ -1,11 +1,14 @@
 package com.ilegra.laa.vertx.controllers;
 
 import com.ilegra.laa.models.*;
+import com.ilegra.laa.models.ranking.RankingEntry;
+import com.ilegra.laa.service.MetricCacheService;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -23,131 +26,98 @@ import java.util.stream.Collectors;
 @Path("/laa/metrics")
 public class MetricsRestController {
 
-  private static final Integer DEFAULT_SEARCH_SIZE = 3;
+  private static final Long DEFAULT_SEARCH_SIZE = 3L;
   private static String VALID_WEEK_REGEX = "(\\d{1,2})\\-(\\d{1,4})";
 
-  protected final RedisClient redisClient;
+  @Inject
+  private MetricCacheService metricCacheService;
 
-  public MetricsRestController() {
-    RedisOptions options = new RedisOptions().setHost("localhost").setPort(6379).setAuth("Illegra2020!").setSelect(1);
-    this.redisClient = RedisClient.create(Vertx.vertx(), options);
-  }
-
-  @Path("/{groupBy}")
+  @Path("/{type}")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public Response searchMetrics(@Context Vertx vertx,
-                                        @PathParam("groupBy") String groupBy,
-                                        @Context HttpServerRequest request) {
-    SearchFilter searchFilter = this.parseAndBuildSearchFilter(request, groupBy);
-    Map<String, String> map = this.searchMetrics(vertx, searchFilter);
-    if (map.isEmpty()) {
+                                @PathParam("type") String type,
+                                @Context HttpServerRequest request) {
+    SearchFilter searchFilter = this.parseAndBuildSearchFilter(request, type);
+    MetricResponseWrapper searchResult = this.metricCacheService.searchMetrics(searchFilter);
+    if (searchResult.isEmpty()) {
       return Response.noContent().build();
     } else {
-      return Response.ok(map).build();
+      return Response.ok(searchResult).build();
     }
-
   }
 
-  private Map<String, String> searchMetrics(Vertx vertx, SearchFilter searchFilter ) {
-    Map<String, String> metrics = null;
-    switch (searchFilter.getGroupBy()) {
-      case REGION: {
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_REGION.name());
-        break;
-      }
-      case URL:{
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_URL.name());
-        break;
-      }
-      case MINUTE:{
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_MINUTE.name());
-        searchFilter.setSearchTerm(searchFilter.getMinute());
-        break;
-      }
-      case DAY:{
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_DAY.name());
-        searchFilter.setSearchTerm(searchFilter.getDay());
-        break;
-      }
-      case WEEK:{
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_WEEK.name());
-        searchFilter.setSearchTerm(searchFilter.getWeek());
-        break;
-      }
-      case MONTH:{
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_MONTH.name());
-        searchFilter.setSearchTerm(searchFilter.getMonth());
-        break;
-      }
-      case YEAR:{
-        metrics = vertx.sharedData().getLocalMap(MetricGroupType.GROUP_BY_YEAR.name());
-        searchFilter.setSearchTerm(searchFilter.getYear());
-        break;
-      }
-    }
-    return this.sortAndLimitSearchResults(metrics,
-      searchFilter);
-  }
-
-  private Map<String, String> sortAndLimitSearchResults(Map<String, String> metrics, SearchFilter searchFilter) {
-    if(searchFilter.getSearchTerm() == null) {
-      return metrics;
-    }
-
-    return metrics.entrySet().stream()
-      .filter(entry -> entry.getKey().equals(searchFilter.getSearchTerm()))
-      .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
-  }
-
-  private SearchFilter parseAndBuildSearchFilter(HttpServerRequest request, String groupBy) {
-    return SearchFilter.builder()
-      .groupBy(SearchGroupBy.from(groupBy))
-      .order(SearchOrder.from(request.getParam("order")))
+  private SearchFilter parseAndBuildSearchFilter(HttpServerRequest request, String type) {
+    SearchType searchType = SearchType.from(type);
+    SearchOrder searchOrder = SearchOrder.from(request.getParam("order"));
+    Long size = getLongParameter(request.getParam("size"));
+    SearchFilter filter = SearchFilter.builder()
+      .type(searchType == null ? SearchType.URL : searchType)
+      .order(searchOrder == null ? searchOrder.TOP : searchOrder)
+      .order(searchOrder == null ? searchOrder.TOP : searchOrder)
       .minute(getDateExpression(request.getParam("minute"), DatePattern.MINUTE.getPattern()))
       .day(getDateExpression(request.getParam("day"), DatePattern.DAY.getPattern()))
       .month(getDateExpression(request.getParam("month"), DatePattern.MONTH.getPattern()))
       .year(getDateExpression(request.getParam("year"), DatePattern.YEAR.getPattern()))
       .week(getWeekExpression(request.getParam("week")))
-      .size(getIntegerParameter(request.getParam("size")))
-      .createSearchFilter();
+      .size(size == null ? DEFAULT_SEARCH_SIZE : size)
+      .build();
+    Integer countDateFilters = 0;
+    if (filter.getYear() != null && !filter.getYear().isBlank())
+      countDateFilters++;
+    if (filter.getMonth() != null && !filter.getMonth().isBlank())
+      countDateFilters++;
+    if (filter.getWeek() != null && !filter.getWeek().isBlank())
+      countDateFilters++;
+    if (filter.getDay() != null && !filter.getDay().isBlank())
+      countDateFilters++;
+
+    if(filter.getType() == SearchType.DATE && countDateFilters > 1) {
+      throw new ValidationException("When searching by dates only one date filter is allowed");
+    }
+    if(filter.getType() == SearchType.DATE && countDateFilters == 0) {
+      throw new ValidationException("When searching by dates at least one date filter is required");
+    }
+    if(filter.getType() != SearchType.DATE && countDateFilters > 0) {
+      throw new ValidationException("Date filters are allowed only on search type date");
+    }
+    return filter;
+
   }
 
   private String getDateExpression(String expression, String pattern) {
-    if(expression == null || expression.trim().isBlank()) {
+    if (expression == null || expression.trim().isBlank()) {
       return null;
     }
     try {
       new SimpleDateFormat(pattern).parse(expression);
-    }
-    catch (ParseException ex) {
+    } catch (ParseException ex) {
       throw new ValidationException(ex.getMessage());
     }
     return expression;
   }
 
   private String getWeekExpression(String weekExpression) {
-    if(weekExpression == null || weekExpression.isBlank()) {
+    if (weekExpression == null || weekExpression.isBlank()) {
       return null;
     }
     Pattern pattern = Pattern.compile(VALID_WEEK_REGEX);
     Matcher matcher = pattern.matcher(weekExpression);
     if (matcher.find()) {
       int weekNumber = Integer.parseInt(matcher.group(1));
-      if(weekNumber <= 0 || weekNumber > 55)
+      if (weekNumber <= 0 || weekNumber > 55)
         throw new ValidationException("Invalid week format");
     }
     return weekExpression;
   }
 
-  private Integer getIntegerParameter(String sizeExpression) {
-    if(sizeExpression == null || sizeExpression.isBlank()) {
+  private Long getLongParameter(String sizeExpression) {
+    if (sizeExpression == null || sizeExpression.isBlank()) {
       return DEFAULT_SEARCH_SIZE;
     }
     try {
-      return Integer.parseInt(sizeExpression.trim());
-    }
-    catch (Exception ex) {
+      return Long.parseLong(sizeExpression.trim());
+    } catch (Exception ex) {
       throw new ValidationException("Invalid value for size");
     }
   }
