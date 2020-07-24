@@ -4,6 +4,7 @@ import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.vertx.health.KafkaStateListener;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
@@ -61,6 +62,9 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
       LOG.info("Starting Kafka Streams {}", this.getClass().getSimpleName());
       createAggregatorKafkaStreams(builder);
       this.streams = new KafkaStreams(builder.build(), streamsConfiguration);
+      this.streams.setStateListener(
+        new KafkaStateListener(this.metricGroupType.name(), vertx.sharedData())
+      );
       streams.cleanUp();
       streams.start();
     }, res ->{

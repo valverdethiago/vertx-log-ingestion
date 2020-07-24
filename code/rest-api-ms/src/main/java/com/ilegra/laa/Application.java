@@ -42,11 +42,11 @@ public class Application {
       VertxOptions options = new VertxOptions()
         .setClusterManager(mgr)
         .setMaxEventLoopExecuteTime(Long.MAX_VALUE);
-      Injector injector = Guice.createInjector(new ServiceModule(settings));
       Vertx.clusteredVertx(options, res -> {
         if(res.succeeded()) {
 
           Vertx vertx = res.result();
+          Injector injector = Guice.createInjector(new ServiceModule(vertx, settings));
 
           GuiceVerticleFactory guiceVerticleFactory = new GuiceVerticleFactory(injector);
           vertx.registerVerticleFactory(guiceVerticleFactory);

@@ -1,6 +1,7 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.injection.GuiceInjectionProvider;
+import com.ilegra.laa.vertx.controllers.HealthCheckRestController;
 import com.ilegra.laa.vertx.controllers.LogIngestionRestController;
 import com.ilegra.laa.vertx.controllers.MetricsRestController;
 import com.ilegra.laa.vertx.controllers.SimpleMetricsRestController;
@@ -33,8 +34,10 @@ public class HttpServerVerticle extends AbstractVerticle {
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
     new RestBuilder(router)
-      .injectWith(new GuiceInjectionProvider(settings))
-      .register(LogIngestionRestController.class,
+      .injectWith(new GuiceInjectionProvider(vertx, settings))
+      .register(
+        HealthCheckRestController.class,
+        LogIngestionRestController.class,
         MetricsRestController.class,
         SimpleMetricsRestController.class)
       .build();
