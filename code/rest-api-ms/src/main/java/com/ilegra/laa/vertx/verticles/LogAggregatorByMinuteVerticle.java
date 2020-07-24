@@ -6,7 +6,6 @@ import com.ilegra.laa.serialization.LogAggregatorSerde;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.RankingEntryDeserializer;
 import com.ilegra.laa.serialization.RankingEntrySerde;
-import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -43,9 +42,7 @@ public class LogAggregatorByMinuteVerticle extends AbstractLogStreamVerticle<Ran
         },
         Materialized.with(Serdes.String(), new LogAggregatorSerde()))
       .toStream()
-      .map( (key, logAgg) ->  {
-        return new KeyValue<>(key, new RankingEntry(key, logAgg.countUrls()));
-      })
+      .map( (key, logAgg) ->  new KeyValue<>(key, new RankingEntry(key, logAgg.countUrls())))
       .to(this.outputTopicName.name(), Produced.with(Serdes.String(), new RankingEntrySerde()));
   }
 

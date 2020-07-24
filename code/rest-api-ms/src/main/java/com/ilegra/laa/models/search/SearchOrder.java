@@ -1,7 +1,8 @@
-package com.ilegra.laa.models;
+package com.ilegra.laa.models.search;
+
+import com.ilegra.laa.models.exceptions.ValidationException;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 public enum SearchOrder {
 

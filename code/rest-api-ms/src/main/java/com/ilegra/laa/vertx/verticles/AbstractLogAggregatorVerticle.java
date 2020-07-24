@@ -5,8 +5,8 @@ import com.ilegra.laa.models.LogAggregator;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
-import com.ilegra.laa.serialization.*;
-import io.vertx.core.json.Json;
+import com.ilegra.laa.serialization.GroupedRankingEntryDeserializer;
+import com.ilegra.laa.serialization.JsonPojoSerde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -20,12 +20,13 @@ import java.util.ArrayList;
 
 public abstract class AbstractLogAggregatorVerticle extends AbstractLogStreamVerticle<GroupedRankingEntry> {
 
-  private final static Logger LOG = LoggerFactory.getLogger(AbstractLogAggregatorVerticle.class);
-
   public AbstractLogAggregatorVerticle(MetricGroupType metricGroupType,
                                        KafkaTopic inputTopicName,
                                        KafkaTopic outputTopicName) {
-    super(metricGroupType, inputTopicName, outputTopicName, GroupedRankingEntryDeserializer.class);
+    super(metricGroupType,
+      inputTopicName,
+      outputTopicName,
+      GroupedRankingEntryDeserializer.class);
   }
 
   /**

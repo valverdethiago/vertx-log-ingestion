@@ -1,4 +1,4 @@
-package com.ilegra.laa.models;
+package com.ilegra.laa.models.search;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;

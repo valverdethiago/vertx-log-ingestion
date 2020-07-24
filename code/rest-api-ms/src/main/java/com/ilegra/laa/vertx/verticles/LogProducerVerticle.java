@@ -3,7 +3,6 @@ package com.ilegra.laa.vertx.verticles;
 import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogEntry;
-import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.LogEntrySerializer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class LogProducerVerticle extends AbstractVerticle {
 

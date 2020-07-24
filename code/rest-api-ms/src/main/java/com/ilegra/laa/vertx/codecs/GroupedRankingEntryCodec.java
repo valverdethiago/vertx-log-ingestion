@@ -9,8 +9,7 @@ public class GroupedRankingEntryCodec implements MessageCodec<GroupedRankingEntr
   @Override
   public void encodeToWire(Buffer buffer, GroupedRankingEntry groupedRankingEntry) {
     String json = Json.encodePrettily(groupedRankingEntry);
-    int length = json.getBytes().length;
-    buffer.appendInt(length);
+    buffer.appendInt(json.getBytes().length);
     buffer.appendString(json);
   }
 

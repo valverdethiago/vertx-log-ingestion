@@ -1,4 +1,4 @@
-package com.ilegra.laa.models;
+package com.ilegra.laa.models.search;
 
 import com.ilegra.laa.models.builders.SearchFilterBuilder;
 

@@ -1,16 +1,11 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.models.MetricGroupType;
-import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.Json;
-import io.vertx.redis.RedisClient;
-import io.vertx.redis.RedisOptions;
-import io.vertx.redis.client.RedisAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

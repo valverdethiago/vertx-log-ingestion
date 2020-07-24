@@ -1,6 +1,6 @@
 package com.ilegra.laa.models.builders;
 
-import com.ilegra.laa.models.GlobalMetricsWrapper;
+import com.ilegra.laa.models.search.GlobalMetricsWrapper;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
 

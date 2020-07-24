@@ -1,6 +1,11 @@
 package com.ilegra.laa.vertx.controllers;
 
 import com.ilegra.laa.models.*;
+import com.ilegra.laa.models.exceptions.ValidationException;
+import com.ilegra.laa.models.search.MetricResponseWrapper;
+import com.ilegra.laa.models.search.SearchFilter;
+import com.ilegra.laa.models.search.SearchOrder;
+import com.ilegra.laa.models.search.SearchType;
 import com.ilegra.laa.service.MetricCacheService;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
@@ -22,7 +27,7 @@ import java.util.regex.Pattern;
 public class MetricsRestController {
 
   private static final Long DEFAULT_SEARCH_SIZE = 3L;
-  private static String VALID_WEEK_REGEX = "(\\d{1,4})\\-(\\d{1,2})";
+  private static String VALID_WEEK_REGEX = "(\\d{1,4})-(\\d{1,2})";
 
   @Inject
   private MetricCacheService metricCacheService;
@@ -48,8 +53,7 @@ public class MetricsRestController {
     Long size = getLongParameter(request.getParam("size"));
     SearchFilter filter = SearchFilter.builder()
       .type(searchType == null ? SearchType.URL : searchType)
-      .order(searchOrder == null ? searchOrder.TOP : searchOrder)
-      .order(searchOrder == null ? searchOrder.TOP : searchOrder)
+      .order(searchOrder == null ? SearchOrder.TOP : searchOrder)
       .minute(getDateExpression(request.getParam("minute"), DatePattern.MINUTE.getPattern()))
       .day(getDateExpression(request.getParam("day"), DatePattern.DAY.getPattern()))
       .month(getDateExpression(request.getParam("month"), DatePattern.MONTH.getPattern()))
@@ -57,7 +61,7 @@ public class MetricsRestController {
       .week(getWeekExpression(request.getParam("week")))
       .size(size == null ? DEFAULT_SEARCH_SIZE : size)
       .build();
-    Integer countDateFilters = 0;
+    int countDateFilters = 0;
     if (filter.getYear() != null && !filter.getYear().isBlank())
       countDateFilters++;
     if (filter.getMonth() != null && !filter.getMonth().isBlank())

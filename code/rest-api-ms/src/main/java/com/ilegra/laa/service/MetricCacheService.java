@@ -1,8 +1,8 @@
 package com.ilegra.laa.service;
 
 import com.ilegra.laa.models.MetricGroupType;
-import com.ilegra.laa.models.MetricResponseWrapper;
-import com.ilegra.laa.models.SearchFilter;
+import com.ilegra.laa.models.search.MetricResponseWrapper;
+import com.ilegra.laa.models.search.SearchFilter;
 
 import java.util.List;
 

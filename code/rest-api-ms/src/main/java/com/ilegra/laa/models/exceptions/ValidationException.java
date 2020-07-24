@@ -1,4 +1,4 @@
-package com.ilegra.laa.models;
+package com.ilegra.laa.models.exceptions;
 
 public class ValidationException extends RuntimeException{
 

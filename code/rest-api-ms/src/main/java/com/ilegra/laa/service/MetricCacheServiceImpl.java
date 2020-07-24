@@ -1,9 +1,9 @@
 package com.ilegra.laa.service;
 
 import com.ilegra.laa.models.MetricGroupType;
-import com.ilegra.laa.models.MetricResponseWrapper;
-import com.ilegra.laa.models.SearchFilter;
-import com.ilegra.laa.models.SearchOrder;
+import com.ilegra.laa.models.search.MetricResponseWrapper;
+import com.ilegra.laa.models.search.SearchFilter;
+import com.ilegra.laa.models.search.SearchOrder;
 import com.ilegra.laa.models.builders.MetricResponseWrapperBuilder;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
@@ -28,7 +28,11 @@ public class MetricCacheServiceImpl implements MetricCacheService {
 
 
   public MetricCacheServiceImpl() {
-    RedisOptions options = new RedisOptions().setHost("localhost").setPort(6379).setAuth("Illegra2020!").setSelect(1);
+    RedisOptions options = new RedisOptions()
+      .setHost("localhost")
+      .setPort(6379)
+      .setAuth("Illegra2020!")
+      .setSelect(1);
     this.redisClient = RedisClient.create(Vertx.vertx(), options);
   }
 
@@ -55,7 +59,9 @@ public class MetricCacheServiceImpl implements MetricCacheService {
 
   private List<GroupedRankingEntry> getMetrics(final MetricGroupType metricGroupType, final String filter) {
     List<GroupedRankingEntry> preFilteredMetrics = this.getMetrics(metricGroupType, GroupedRankingEntry[].class);
-    return preFilteredMetrics.stream().filter(entry-> entry.getKey().equals(filter)).collect(Collectors.toList());
+    return preFilteredMetrics.stream()
+      .filter(entry-> entry.getKey().equals(filter))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -72,7 +78,6 @@ public class MetricCacheServiceImpl implements MetricCacheService {
         responseBuilder
           .groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_REGION, GroupedRankingEntry[].class));
         break;
-
       }
       case MINUTE: {
         responseBuilder
@@ -87,19 +92,25 @@ public class MetricCacheServiceImpl implements MetricCacheService {
     return this.limitAndOrderResponse(searchFilter, responseBuilder.build());
   }
 
-  private MetricResponseWrapper limitAndOrderResponse(SearchFilter searchFilter, MetricResponseWrapper responseWrapper) {
-    if(responseWrapper.getGroupedRankingEntries() != null && !responseWrapper.getGroupedRankingEntries().isEmpty()) {
-      responseWrapper.getGroupedRankingEntries().forEach(elem -> {
-        elem.setRanking(this.applyOrderAndLimit(elem.getRanking(), searchFilter));
-      });
+  private MetricResponseWrapper limitAndOrderResponse(SearchFilter searchFilter,
+                                                      MetricResponseWrapper responseWrapper) {
+    if(responseWrapper.getGroupedRankingEntries() != null &&
+      !responseWrapper.getGroupedRankingEntries().isEmpty()) {
+      responseWrapper.getGroupedRankingEntries().forEach(elem ->
+        elem.setRanking(this.applyOrderAndLimit(elem.getRanking(), searchFilter))
+      );
     }
-    if(responseWrapper.getRankingEntries() != null && !responseWrapper.getRankingEntries().isEmpty()) {
-      responseWrapper.setRankingEntries(this.applyOrderAndLimit(responseWrapper.getRankingEntries(), searchFilter));
+    if(responseWrapper.getRankingEntries() != null &&
+      !responseWrapper.getRankingEntries().isEmpty()) {
+      responseWrapper.setRankingEntries(
+        this.applyOrderAndLimit(responseWrapper.getRankingEntries(), searchFilter)
+      );
     }
     return responseWrapper;
   }
 
-  private List<RankingEntry> applyOrderAndLimit(List<RankingEntry> ranking, SearchFilter searchFilter) {
+  private List<RankingEntry> applyOrderAndLimit(List<RankingEntry> ranking,
+                                                SearchFilter searchFilter) {
     Stream<RankingEntry> stream = ranking
       .stream()
       .sorted();
@@ -116,17 +127,24 @@ public class MetricCacheServiceImpl implements MetricCacheService {
   }
 
   private void searchMetricsByDate(SearchFilter searchFilter, MetricResponseWrapperBuilder responseBuilder) {
-    if(searchFilter.getDay()!=null && !searchFilter.getDay().isEmpty()) {
-      responseBuilder.groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_DAY, searchFilter.getDay()));
-    }
-    else if(searchFilter.getWeek()!=null && !searchFilter.getWeek().isEmpty()) {
-      responseBuilder.groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_WEEK, searchFilter.getWeek()));
-    }
-    else if(searchFilter.getMonth()!=null && !searchFilter.getMonth().isEmpty()) {
-      responseBuilder.groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_MONTH, searchFilter.getMonth()));
-    }
-    else if(searchFilter.getYear()!=null && !searchFilter.getYear().isEmpty()) {
-      responseBuilder.groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_YEAR, searchFilter.getYear()));
-    }
+    if(searchFilter.getDay()!=null && !searchFilter.getDay().isEmpty())
+      responseBuilder.groupedRankingEntries(
+        this.getMetrics(MetricGroupType.GROUP_BY_DAY, searchFilter.getDay())
+      );
+    else if(searchFilter.getWeek()!=null && !searchFilter.getWeek().isEmpty())
+      responseBuilder.groupedRankingEntries(
+        this.getMetrics(MetricGroupType.GROUP_BY_WEEK, searchFilter.getWeek())
+      );
+
+    else if(searchFilter.getMonth()!=null && !searchFilter.getMonth().isEmpty())
+      responseBuilder.groupedRankingEntries(
+        this.getMetrics(MetricGroupType.GROUP_BY_MONTH, searchFilter.getMonth())
+      );
+
+    else if(searchFilter.getYear()!=null && !searchFilter.getYear().isEmpty())
+      responseBuilder.groupedRankingEntries(
+        this.getMetrics(MetricGroupType.GROUP_BY_YEAR, searchFilter.getYear())
+      );
+
   }
 }

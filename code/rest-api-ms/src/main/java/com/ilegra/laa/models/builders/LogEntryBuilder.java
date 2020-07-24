@@ -13,32 +13,32 @@ public class LogEntryBuilder {
     private String clientId;
     private AwsRegion region;
 
-    public LogEntryBuilder setId(UUID id) {
+    public LogEntryBuilder id(UUID id) {
       this.id = id;
       return this;
     }
 
-    public LogEntryBuilder setUrl(String url) {
+    public LogEntryBuilder url(String url) {
         this.url = url;
         return this;
     }
 
-    public LogEntryBuilder setDate(Instant date) {
+    public LogEntryBuilder date(Instant date) {
         this.date = date;
         return this;
     }
 
-    public LogEntryBuilder setClientId(String clientId) {
+    public LogEntryBuilder clientId(String clientId) {
         this.clientId = clientId;
         return this;
     }
 
-    public LogEntryBuilder setRegion(AwsRegion region) {
+    public LogEntryBuilder region(AwsRegion region) {
         this.region = region;
         return this;
     }
 
-    public LogEntry createLogRequest() {
+    public LogEntry build() {
         return new LogEntry(id, url, date, clientId, region);
     }
 }

@@ -1,8 +1,8 @@
 package com.ilegra.laa.models.builders;
 
-import com.ilegra.laa.models.SearchFilter;
-import com.ilegra.laa.models.SearchType;
-import com.ilegra.laa.models.SearchOrder;
+import com.ilegra.laa.models.search.SearchFilter;
+import com.ilegra.laa.models.search.SearchType;
+import com.ilegra.laa.models.search.SearchOrder;
 
 public class SearchFilterBuilder {
   private SearchOrder order;
@@ -50,7 +50,7 @@ public class SearchFilterBuilder {
     return this;
   }
 
-  public SearchFilterBuilder minute(String year) {
+  public SearchFilterBuilder minute(String minute) {
     this.minute = minute;
     return this;
   }

@@ -47,7 +47,10 @@ public class GroupedMetricUpdateEventListenerVerticle extends AbstractRedisVerti
           GroupedRankingEntry[].class);
         rankingToBeCached.addAll(Arrays.asList(currentRankingEntries));
       }
-      this.redisClient.set(metricGroupType.name(), Json.encodePrettily(rankingToBeCached), this::handleRedisUpdate);
+      this.redisClient.set(
+        metricGroupType.name(),
+        Json.encodePrettily(rankingToBeCached),
+        this::handleRedisUpdate);
     });
   }
 

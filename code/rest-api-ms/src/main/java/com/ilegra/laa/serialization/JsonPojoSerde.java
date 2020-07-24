@@ -1,6 +1,5 @@
 package com.ilegra.laa.serialization;
 
-import com.ilegra.laa.models.LogEntry;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serializer;
@@ -26,11 +25,11 @@ public class JsonPojoSerde<T extends Serializable> implements Serde<T> {
 
   @Override
   public Serializer<T> serializer() {
-    return new JsonPojoSerializer<T>();
+    return new JsonPojoSerializer<>();
   }
 
   @Override
   public Deserializer<T> deserializer() {
-    return new JsonPojoDeserializer<T>(pojoClass);
+    return new JsonPojoDeserializer<>(pojoClass);
   }
 }

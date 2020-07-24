@@ -1,6 +1,5 @@
 package com.ilegra.laa.serialization;
 
-import com.ilegra.laa.models.LogAggregator;
 import io.vertx.core.json.Json;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
