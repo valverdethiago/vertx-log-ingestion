@@ -65,19 +65,19 @@ public class MetricCacheServiceImpl implements MetricCacheService {
     switch (searchFilter.getType()) {
       case URL: {
         responseBuilder
-          .rankingEntrie(this.getMetrics(MetricGroupType.GROUP_BY_URL, RankingEntry[].class))
-          .build();
+          .rankingEntrie(this.getMetrics(MetricGroupType.GROUP_BY_URL, RankingEntry[].class));
         break;
       }
       case REGION: {
         responseBuilder
-          .groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_REGION, GroupedRankingEntry[].class))
-          .build();
+          .groupedRankingEntries(this.getMetrics(MetricGroupType.GROUP_BY_REGION, GroupedRankingEntry[].class));
+        break;
+
       }
       case MINUTE: {
         responseBuilder
-          .rankingEntrie(this.getMetrics(MetricGroupType.GROUP_BY_MINUTE, RankingEntry[].class))
-          .build();
+          .rankingEntrie(this.getMetrics(MetricGroupType.GROUP_BY_MINUTE, RankingEntry[].class));
+        break;
       }
       case DATE: {
         this.searchMetricsByDate(searchFilter, responseBuilder);

@@ -1,12 +1,9 @@
 package com.ilegra.laa.vertx.controllers;
 
 import com.ilegra.laa.models.*;
-import com.ilegra.laa.models.ranking.RankingEntry;
 import com.ilegra.laa.service.MetricCacheService;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerRequest;
-import io.vertx.redis.RedisClient;
-import io.vertx.redis.RedisOptions;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -18,16 +15,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Path("/laa/metrics")
 public class MetricsRestController {
 
   private static final Long DEFAULT_SEARCH_SIZE = 3L;
-  private static String VALID_WEEK_REGEX = "(\\d{1,2})\\-(\\d{1,4})";
+  private static String VALID_WEEK_REGEX = "(\\d{1,4})\\-(\\d{1,2})";
 
   @Inject
   private MetricCacheService metricCacheService;
@@ -104,7 +99,7 @@ public class MetricsRestController {
     Pattern pattern = Pattern.compile(VALID_WEEK_REGEX);
     Matcher matcher = pattern.matcher(weekExpression);
     if (matcher.find()) {
-      int weekNumber = Integer.parseInt(matcher.group(1));
+      int weekNumber = Integer.parseInt(matcher.group(2));
       if (weekNumber <= 0 || weekNumber > 55)
         throw new ValidationException("Invalid week format");
     }
