@@ -8,6 +8,7 @@ import com.ilegra.laa.serialization.LogAggregatorSerde;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.RankingEntryDeserializer;
 import com.ilegra.laa.serialization.RankingEntrySerde;
+import com.ilegra.laa.config.ServerSettings;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -15,10 +16,14 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
+import javax.inject.Inject;
+
 public class LogAggregatorByUrlVerticle extends AbstractLogStreamVerticle<RankingEntry> {
 
-  public LogAggregatorByUrlVerticle() {
-    super(MetricGroupType.GROUP_BY_URL,
+  @Inject
+  public LogAggregatorByUrlVerticle(ServerSettings settings) {
+    super(settings,
+      MetricGroupType.GROUP_BY_URL,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_URL_OUTPUT,
       RankingEntryDeserializer.class);

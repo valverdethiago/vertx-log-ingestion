@@ -4,6 +4,7 @@ import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.serialization.LogEntrySerializer;
+import com.ilegra.laa.config.ServerSettings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
@@ -14,6 +15,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +23,12 @@ public class LogProducerVerticle extends AbstractVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(LogProducerVerticle.class);
   private KafkaProducer<String, LogEntry> kafkaProducer;
+  private final ServerSettings settings;
+
+  @Inject
+  public LogProducerVerticle(ServerSettings settings) {
+    this.settings = settings;
+  }
 
   @Override
   public void start(final Promise<Void> startPromise) {
@@ -51,7 +59,7 @@ public class LogProducerVerticle extends AbstractVerticle {
 
   private Map<String, String> createKafkaProducerConfig() {
     final Map<String, String> config = new HashMap<>();
-    config.put("bootstrap.servers", "localhost:9092");
+    config.put("bootstrap.servers", settings.getKafkaServer());
     config.put("key.serializer", StringSerializer.class.getTypeName());
     config.put("value.serializer", LogEntrySerializer.class.getTypeName());
     return config;

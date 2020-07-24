@@ -23,7 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Path("/laa/metrics")
+import static com.ilegra.laa.vertx.verticles.HttpServerVerticle.API_PATH;
+
+@Path(API_PATH+"/metrics")
 public class MetricsRestController {
 
   private static final Long DEFAULT_SEARCH_SIZE = 3L;

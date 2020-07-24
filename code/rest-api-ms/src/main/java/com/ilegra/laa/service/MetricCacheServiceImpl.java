@@ -7,6 +7,7 @@ import com.ilegra.laa.models.search.SearchOrder;
 import com.ilegra.laa.models.builders.MetricResponseWrapperBuilder;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
+import com.ilegra.laa.config.ServerSettings;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
@@ -15,6 +16,7 @@ import io.vertx.redis.RedisOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collector;
@@ -26,13 +28,16 @@ public class MetricCacheServiceImpl implements MetricCacheService {
   private final static Logger LOG = LoggerFactory.getLogger(MetricCacheServiceImpl.class);
 
   protected final RedisClient redisClient;
+  private final ServerSettings settings;
 
 
-  public MetricCacheServiceImpl() {
+  @Inject
+  public MetricCacheServiceImpl(ServerSettings settings) {
+    this.settings = settings;
     RedisOptions options = new RedisOptions()
-      .setHost("localhost")
-      .setPort(6379)
-      .setAuth("Illegra2020!")
+      .setHost(settings.getRedisHost())
+      .setPort(settings.getRedisPort())
+      .setAuth(settings.getRedisPassword())
       .setSelect(1);
     this.redisClient = RedisClient.create(Vertx.vertx(), options);
   }

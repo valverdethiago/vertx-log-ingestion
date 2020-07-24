@@ -6,6 +6,7 @@ import com.ilegra.laa.serialization.LogAggregatorSerde;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.RankingEntryDeserializer;
 import com.ilegra.laa.serialization.RankingEntrySerde;
+import com.ilegra.laa.config.ServerSettings;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -13,6 +14,7 @@ import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
+import javax.inject.Inject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,8 +23,10 @@ public class LogAggregatorByMinuteVerticle extends AbstractLogStreamVerticle<Ran
 
   private final static DateFormat DATE_FORMAT = new SimpleDateFormat(DatePattern.MINUTE.getPattern());
 
-  public LogAggregatorByMinuteVerticle() {
-    super(MetricGroupType.GROUP_BY_MINUTE,
+  @Inject
+  public LogAggregatorByMinuteVerticle(ServerSettings settings) {
+    super(settings,
+      MetricGroupType.GROUP_BY_MINUTE,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_MINUTE_OUTPUT,
       RankingEntryDeserializer.class);

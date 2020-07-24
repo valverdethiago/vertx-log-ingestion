@@ -1,13 +1,11 @@
 package com.ilegra.laa.vertx.verticles;
 
-import com.ilegra.laa.models.EventBusAddress;
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.serialization.LogEntrySerde;
+import com.ilegra.laa.config.ServerSettings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.shareddata.LocalMap;
-import io.vertx.core.shareddata.SharedData;
 import io.vertx.kafka.client.consumer.KafkaConsumer;
 import io.vertx.kafka.client.consumer.KafkaConsumerRecord;
 import org.apache.kafka.common.serialization.Deserializer;
@@ -26,6 +24,7 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
 
   private final static Logger LOG = LoggerFactory.getLogger(AbstractLogStreamVerticle.class);
 
+  protected final ServerSettings settings;
   protected final MetricGroupType metricGroupType;
   protected final KafkaTopic inputTopicName;
   protected final KafkaTopic outputTopicName;
@@ -34,10 +33,12 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
   private KafkaStreams streams;
   private KafkaConsumer<String, T> consumer;
 
-  public AbstractLogStreamVerticle(MetricGroupType metricGroupType,
+  public AbstractLogStreamVerticle(ServerSettings settings,
+                                   MetricGroupType metricGroupType,
                                    KafkaTopic inputTopicName,
                                    KafkaTopic outputTopicName,
                                    Class<? extends Deserializer<T>> deserializerClass) {
+    this.settings = settings;
     this.metricGroupType = metricGroupType;
     this.inputTopicName = inputTopicName;
     this.outputTopicName = outputTopicName;
@@ -140,7 +141,7 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     config.put(StreamsConfig.APPLICATION_ID_CONFIG, "log-analytics-application-"+this.metricGroupType.name());
     config.put(StreamsConfig.CLIENT_ID_CONFIG, "log-analytics-application-client-"+this.metricGroupType.name());
     // Where to find Kafka broker(s).
-    config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, settings.getKafkaServer());
     // Specify default (de)serializers for record keys and for record values.
     config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getTypeName());
     config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, LogEntrySerde.class.getTypeName());
@@ -155,7 +156,7 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
 
   private Properties getConsumerConfiguration() {
     final Properties config = new Properties();
-    config.put("bootstrap.servers", "localhost:9092");
+    config.put("bootstrap.servers", settings.getKafkaServer());
     config.put("key.deserializer", StringDeserializer.class.getTypeName());
     config.put("value.deserializer", this.deserializerClass.getTypeName());
     config.put("group.id", "log-access-analytics-consumer-"+this.metricGroupType.name());

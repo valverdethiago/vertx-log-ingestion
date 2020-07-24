@@ -20,7 +20,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Path("/laa/ingest")
+import static com.ilegra.laa.vertx.verticles.HttpServerVerticle.API_PATH;
+
+@Path(API_PATH+"/ingest")
 public class LogIngestionRestController {
 
   private final static Logger LOG = LoggerFactory.getLogger(LogIngestionRestController.class);

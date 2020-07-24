@@ -13,7 +13,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/laa/metrics-status")
+import static com.ilegra.laa.vertx.verticles.HttpServerVerticle.API_PATH;
+
+@Path(API_PATH+"/metrics-status")
 public class SimpleMetricsRestController {
   @Inject
   private MetricCacheService metricCacheService;
