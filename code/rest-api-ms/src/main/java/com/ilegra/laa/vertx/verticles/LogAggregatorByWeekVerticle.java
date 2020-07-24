@@ -19,6 +19,6 @@ public class LogAggregatorByWeekVerticle extends AbstractLogAggregatorVerticle {
   protected String groupBy(LogEntry logRequest) {
     ZonedDateTime zdt = ZonedDateTime.ofInstant(logRequest.getDate(), ZoneId.systemDefault());
     Calendar calendar = GregorianCalendar.from(zdt);
-    return calendar.get(Calendar.WEEK_OF_YEAR)+"-"+calendar.get(Calendar.YEAR);
+    return calendar.get(Calendar.YEAR)+"-"+calendar.get(Calendar.WEEK_OF_YEAR);
   }
 }
