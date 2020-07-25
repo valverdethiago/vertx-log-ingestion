@@ -46,7 +46,7 @@ public class ServerSettings extends Settings {
       .longCommand(REDIS_PASSWORD)
       .setting(REDIS_PASSWORD)
       .description("Redis password")
-      .defaultsTo("Illegra2020!");
+      .defaultsTo("Illegra2020");
     builder = new CommandBuilder();
     builder.add(port);
     builder.add(kafka);

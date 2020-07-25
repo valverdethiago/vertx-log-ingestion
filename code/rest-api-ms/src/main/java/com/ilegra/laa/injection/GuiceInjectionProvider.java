@@ -2,10 +2,9 @@ package com.ilegra.laa.injection;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.zandero.rest.injection.InjectionProvider;
 import com.ilegra.laa.config.ServerSettings;
+import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.Vertx;
-import io.vertx.ext.healthchecks.HealthCheckHandler;
 
 public class GuiceInjectionProvider implements InjectionProvider {
   private Injector injector;

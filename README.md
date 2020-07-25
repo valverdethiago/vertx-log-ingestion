@@ -1,5 +1,14 @@
 # LAA - Log Access Analytics
 
+## About this
+LAA stands for "Log Access Analytics", a custom backend solution to provides logs to NPS(Nabucco's Pet Service). This folder is structured as follows:
+* **code** - The code for the backend service
+* **devops** - Automation scripts to build and launch the app
+* **diagram** - All diagrams to describe the solution and the architecture
+* **local-env** - Configuration to demo the solution, and step-by-step process to run it
+* **text** - General explanations about the code and architecture
+* **video** - video demostrating the app in live action
+
 ## Problem statement
 Nabuco is a word class CEO. He need to know which pages are having more access on his website. Nabuco has the biggest pet shop in the world called NPS(Nabucco's Pet Service). Mr Nabuco has lots of access around the world. His site is running in 3 AWS(Amazon Web Service) regions being: us-east-1, us-west-2 and ap-south-1. Lucky-ly Nabuco developers wrote a log line every time a user access a webpage. Nabucos uses the best solution around web ui rendering web-assembly(WASM) faster than the speed of light. Here is a example of logs you might find:
 
@@ -58,11 +67,14 @@ The basics of the log ingestion flow is:
 5. After finishing the aggregation and summarization the final result is published to another topic (output topic)
 6. Once the final metric is published to one of the output topics, Kafka sinc sends it to the final cache (Redis) and the metrics are finally persisted.
 
----
-For demonstration purposes the component that is sending the output to Redis is implemented on the rest-api-ms project.
----
+
+*For demonstration purposes the component that is sending the output to Redis is implemented on the rest-api-ms project.*
+
 
 ![Application basic flow](./diagram/application_basic_flow.png)
+
+## Code
+For more details about the code please check [this](./code/README.md)
 
 
 

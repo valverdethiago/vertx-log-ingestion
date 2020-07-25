@@ -168,3 +168,6 @@ nbdist/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Avoid any jar file (.jar files are usually ignored)
+*.jar

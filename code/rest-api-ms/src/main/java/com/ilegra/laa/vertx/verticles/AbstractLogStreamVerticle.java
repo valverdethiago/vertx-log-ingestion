@@ -121,11 +121,6 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
   }
 
   private void handleMetricUpdates(KafkaConsumerRecord<String, T> record) {
-    /*
-    SharedData sd = vertx.sharedData();
-    LocalMap<String, String> map1 = sd.getLocalMap(this.metricGroupType.name());
-    map1.put(record.key(), this.serializeAggregator(record.value()));
-    */
     LOG.debug("Processing topic = {}, key= {},value= {}, partition = {}, offset = {}", this.outputTopicName.name(),
       record.key(), record.value(), record.partition(), record.offset());
     vertx.eventBus().send(this.metricGroupType.name(), record.value());
