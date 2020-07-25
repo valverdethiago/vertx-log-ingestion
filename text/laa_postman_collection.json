@@ -11,7 +11,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{basePath}}/health",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"health"
+					]
 				}
 			},
 			"response": []
@@ -22,7 +28,129 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": ""
+					"raw": "{{basePath}}/metrics/url?order=down&size=1",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"metrics",
+						"url"
+					],
+					"query": [
+						{
+							"key": "order",
+							"value": "down"
+						},
+						{
+							"key": "size",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics by Region",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{basePath}}/metrics/region",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"metrics",
+						"region"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics by Minute",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{basePath}}/metrics/minute",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"metrics",
+						"minute"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics by DATE - DAY",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{basePath}}/metrics/date?day=2020-07-23",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"metrics",
+						"date"
+					],
+					"query": [
+						{
+							"key": "day",
+							"value": "2020-07-23"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics by DATE - MONTH",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{basePath}}/metrics/date?day=2020-07-23",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"metrics",
+						"date"
+					],
+					"query": [
+						{
+							"key": "day",
+							"value": "2020-07-23"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Log Ingestion",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "/pets/exotic/dog/10 1595555020 5b019db5-b3d0-46d2-9963-437860af707f 2"
+				},
+				"url": {
+					"raw": "{{basePath}}/ingest",
+					"host": [
+						"{{basePath}}"
+					],
+					"path": [
+						"ingest"
+					]
 				}
 			},
 			"response": []
@@ -30,7 +158,7 @@
 	],
 	"variable": [
 		{
-			"id": "740fffa4-657a-4094-8cb6-ab2b1454055e",
+			"id": "80ddf475-58a2-4c9d-aebd-8f1968723c51",
 			"key": "basePath",
 			"value": "http://localhost:8080/laa"
 		}
