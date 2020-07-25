@@ -18,9 +18,9 @@ cd code/rest-api-ms
  * on linux :
 
 ```bash
---make maven wrapper executable
+# make maven wrapper executable
 chmod +x ./mvnw
---run build
+# build the package
 ./mvnw clean install package
 ```
 * on windows :
