@@ -61,7 +61,7 @@ public class MetricCacheServiceImpl implements MetricCacheService {
           latch.countDown();
         }
       });
-      latch.await();
+      latch.await(2, TimeUnit.SECONDS);
     } catch (Exception ex) {
       LOG.error("Error fetching collection from Redis");
     }

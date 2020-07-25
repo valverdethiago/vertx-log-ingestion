@@ -1,0 +1,39 @@
+{
+	"info": {
+		"_postman_id": "1b96cbd1-9d04-4cd5-ab24-d0d95bec4303",
+		"name": "Log Access Analytics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Healch Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Metrics by URL",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "740fffa4-657a-4094-8cb6-ab2b1454055e",
+			"key": "basePath",
+			"value": "http://localhost:8080/laa"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

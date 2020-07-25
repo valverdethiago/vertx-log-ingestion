@@ -14,6 +14,7 @@ import org.apache.kafka.streams.KafkaStreams;
 
 import javax.inject.Inject;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class HealthCheckServiceImpl implements HealthCheckService {
 
@@ -33,14 +34,20 @@ public class HealthCheckServiceImpl implements HealthCheckService {
 
   @Override
   public HealthCheckHandler createHealthCheckHandler() {
-    healthCheckHandler.register("redis-connection", 20, promise -> {
+    healthCheckHandler.register("redis-connection", promise -> {
       RedisClient.create(vertx, redisOptions).ping(responseAsyncResult -> {
-        promise.complete(responseAsyncResult.succeeded() ? Status.OK() : Status.KO());
+        if(responseAsyncResult.succeeded())
+          promise.tryComplete(Status.OK());
+        else
+          promise.tryFail(responseAsyncResult.cause());
       });
     });
     healthCheckHandler.register("kafka-connection", promise -> {
       KafkaConsumer.create(vertx, this.getKafkaConfiguration()).listTopics(responseAsyncResult -> {
-        promise.complete(responseAsyncResult.succeeded() ? Status.OK() : Status.KO());
+        if(responseAsyncResult.succeeded())
+          promise.tryComplete(Status.OK());
+        else
+          promise.tryFail(responseAsyncResult.cause());
       });
     });
 

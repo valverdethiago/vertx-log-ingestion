@@ -86,9 +86,9 @@ The basics of the log ingestion flow is:
 ## Aditional information
 
 For more details about each of the following topics please refer to the corresponding link:
- * [code](./code/README.md)
+ * [Code](./code/README.md)
  * [REST API](./text/REST.md)
- * [Solution Evaluation And Enhancements](./text/SOLUTION.md)
+ * [Solution evaluation and enhancements](./text/SOLUTION.md)
  * [Live-demo](./local-env/README.md)
  * [Automation](./devops/README.md)
 
