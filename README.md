@@ -45,6 +45,16 @@ It's a basic description of a streaming application that should handle tons of d
 
 So, I'll split this description in two big pictures, each one of them to address one specific feature as described above.
 
+### STREAMING
+
+In order to achieve the multiple processing logic described in the problem statement our system must provide a paralel streaming engine to consume one income resource and produce multiple outcomes based on each needed metric. Kfaka provide such feature using Streams API. 
+
+Kafka Streams simplifies application developtment by building on Kafka consumer and producer APIs, and leveraging the native capabilities of Kafka to offer data parallelism, distributed coordination, fault tolerance and simplicity.
+
+The following diagram describes how the architecture works:
+
+![Kafka Streams Architecture](./diagram/streams_architecture.png)
+
 ### REST API
 
 Our REST API should be developed in a highly scalable fashion that should be deployed on various instances to handle any amount of data that came from the main website. Each API call should not be blocking and even if our streaming component is offline we should be able to act and consume the messages that couldn't be consumed at the arrival.
@@ -73,8 +83,14 @@ The basics of the log ingestion flow is:
 
 ![Application basic flow](./diagram/application_basic_flow.png)
 
-## Code
-For more details about the code please check [this](./code/README.md)
+## Aditional information
+
+For more details about each of the following topics please refer to the corresponding link:
+ * [code](./code/README.md)
+ * [REST API](./text/REST.md)
+ * [Solution Evaluation And Enhancements](./text/SOLUTION.md)
+ * [Live-demo](./local-env/README.md)
+ * [Automation](./devops/README.md)
 
 
 
