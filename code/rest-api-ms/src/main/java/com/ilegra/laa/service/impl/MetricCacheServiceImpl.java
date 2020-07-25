@@ -1,4 +1,4 @@
-package com.ilegra.laa.service;
+package com.ilegra.laa.service.impl;
 
 import com.ilegra.laa.models.MetricGroupType;
 import com.ilegra.laa.models.search.MetricResponseWrapper;
@@ -8,6 +8,7 @@ import com.ilegra.laa.models.builders.MetricResponseWrapperBuilder;
 import com.ilegra.laa.models.ranking.GroupedRankingEntry;
 import com.ilegra.laa.models.ranking.RankingEntry;
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.service.MetricCacheService;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;

@@ -7,6 +7,13 @@ import org.apache.kafka.common.serialization.Deserializer;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * Generic Json Deserializer
+ *
+ * @param <T> Any entity that is @{@link Serializable}
+ *
+ * @author valverde.thiago
+ */
 public class JsonPojoDeserializer<T extends Serializable> implements Deserializer<T> {
 
   private final Class<T> pojoClass;
@@ -14,7 +21,6 @@ public class JsonPojoDeserializer<T extends Serializable> implements Deserialize
   public JsonPojoDeserializer(Class<T> pojoClass) {
     this.pojoClass = pojoClass;
   }
-
 
   @Override
   public void configure(Map<String, ?> configs, boolean isKey) {

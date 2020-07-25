@@ -1,6 +1,8 @@
-package com.ilegra.laa.service;
+package com.ilegra.laa.service.impl;
 
 import com.ilegra.laa.config.ServerSettings;
+import com.ilegra.laa.models.MetricGroupType;
+import com.ilegra.laa.service.HealthCheckService;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.ext.healthchecks.HealthCheckHandler;
@@ -35,7 +37,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
   @Override
   public HealthCheckHandler createHealthCheckHandler() {
     healthCheckHandler.register("redis-connection", promise -> {
-      RedisClient.create(vertx, redisOptions).ping(responseAsyncResult -> {
+      RedisClient.create(vertx, redisOptions).get(MetricGroupType.GROUP_BY_DAY.name(), responseAsyncResult -> {
         if(responseAsyncResult.succeeded())
           promise.tryComplete(Status.OK());
         else
@@ -59,11 +61,6 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     config.put("bootstrap.servers", settings.getKafkaServer());
     config.put("key.deserializer", StringDeserializer.class.getTypeName());
     config.put("value.deserializer", StringDeserializer.class.getTypeName());
-    /*
-    config.put("group.id", "log-access-analytics-consumer-"+this.metricGroupType.name());
-    config.put("auto.offset.reset", "earliest");
-    config.put("enable.auto.commit", "false");
-     */
     return config;
   }
 

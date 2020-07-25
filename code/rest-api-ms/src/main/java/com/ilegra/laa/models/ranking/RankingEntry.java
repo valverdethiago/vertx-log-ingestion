@@ -4,6 +4,11 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+/**
+ * Wrapper for any ranked value such as url and minute
+ *
+ *  @author valverde.thiago
+ */
 public class RankingEntry implements Serializable, Comparable<RankingEntry> {
   private String key;
   private Long count;

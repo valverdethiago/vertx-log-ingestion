@@ -6,6 +6,11 @@ import com.ilegra.laa.models.ranking.RankingEntry;
 
 import java.util.List;
 
+/**
+ * Builder for @{@link GlobalMetricsWrapper}
+ *
+ * @author valverde.thiago
+ */
 public class GlobalMetricsWrapperBuilder {
     private List<GroupedRankingEntry> rankingByDay;
     private List<RankingEntry> rankingByMinute;

@@ -6,6 +6,11 @@ import com.ilegra.laa.models.ranking.RankingEntry;
 
 import java.util.List;
 
+/**
+ * Metrics for @{@link MetricResponseWrapper}
+ *
+ * @author valverde.thiago
+ */
 public class MetricResponseWrapperBuilder {
     private List<RankingEntry> rankingEntries;
     private List<GroupedRankingEntry> groupedRankingEntries;

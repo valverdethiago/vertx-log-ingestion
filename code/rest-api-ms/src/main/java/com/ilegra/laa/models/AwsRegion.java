@@ -3,6 +3,11 @@ package com.ilegra.laa.models;
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Represents all the possible values for aws regions
+ *
+ * @author valverde.thiago
+ */
 public enum AwsRegion {
 
   US_EAST_1(1, "us-east-1"),
@@ -19,14 +24,14 @@ public enum AwsRegion {
 
   public static Optional<AwsRegion> from(Integer code) {
     return Arrays.stream(AwsRegion.values())
-        .filter(region -> region.getCode().equals(code))
-        .findFirst();
+      .filter(region -> region.getCode().equals(code))
+      .findFirst();
   }
 
   public static Optional<AwsRegion> from(String name) {
     return Arrays.stream(AwsRegion.values())
-        .filter(region -> region.getName().equals(name))
-        .findFirst();
+      .filter(region -> region.getName().equals(name))
+      .findFirst();
   }
 
   public Integer getCode() {

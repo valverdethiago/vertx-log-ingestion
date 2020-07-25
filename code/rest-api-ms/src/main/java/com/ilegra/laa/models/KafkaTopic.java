@@ -1,5 +1,10 @@
 package com.ilegra.laa.models;
 
+/**
+ * Store all topic names for input and output messages on kafka
+ *
+ * @author valverde.thiago
+ */
 public enum KafkaTopic {
 
   LOGS_INPUT,

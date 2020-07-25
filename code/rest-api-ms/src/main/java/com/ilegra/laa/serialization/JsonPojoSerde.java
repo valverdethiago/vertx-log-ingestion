@@ -7,6 +7,13 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * Generic Serde for processing json messages to and from kafka topics
+ *
+ * @param <T> any class that implements @{@link Serializable}
+ *
+ * @author valverde.thiago
+ */
 public class JsonPojoSerde<T extends Serializable> implements Serde<T> {
 
   private final Class<T> pojoClass;

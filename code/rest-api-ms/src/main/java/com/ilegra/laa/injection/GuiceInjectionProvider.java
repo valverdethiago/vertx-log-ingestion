@@ -6,6 +6,11 @@ import com.ilegra.laa.config.ServerSettings;
 import com.zandero.rest.injection.InjectionProvider;
 import io.vertx.core.Vertx;
 
+/**
+ * Injection provider to integrate guice to vertx
+ *
+ * @author valverde.thiago
+ */
 public class GuiceInjectionProvider implements InjectionProvider {
   private Injector injector;
 

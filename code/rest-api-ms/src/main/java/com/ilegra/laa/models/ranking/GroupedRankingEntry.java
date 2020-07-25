@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
 
+/**
+ * Wrapper for grouped ranking entry values. Used to return metrics for a give group
+ * parameter such as date, url or region
+ *
+ *  @author valverde.thiago
+ */
 public class GroupedRankingEntry implements Serializable {
   private String key;
   private List<RankingEntry> ranking;

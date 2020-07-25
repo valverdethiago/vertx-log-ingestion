@@ -5,10 +5,15 @@ import com.ilegra.laa.models.builders.SearchFilterBuilder;
 import java.io.Serializable;
 import java.util.StringJoiner;
 
+/**
+ * Used to carry the filter parameters from the controller to the service
+ *
+ * @author valverde.thiago
+ */
 public class SearchFilter implements Serializable {
 
   private SearchOrder order;
-  private SearchType type ;
+  private SearchType type;
   private Long size;
   private String day;
   private String week;

@@ -7,6 +7,13 @@ import org.apache.kafka.common.serialization.Serializer;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * Generic Json Serializer
+ *
+ * @param <T> Any entity that is @{@link Serializable}
+ *
+ * @author valverde.thiago
+ */
 public class JsonPojoSerializer<T extends Serializable> implements Serializer<T> {
 
   @Override

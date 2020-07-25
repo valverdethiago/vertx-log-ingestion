@@ -4,6 +4,11 @@ import com.ilegra.laa.models.search.SearchFilter;
 import com.ilegra.laa.models.search.SearchType;
 import com.ilegra.laa.models.search.SearchOrder;
 
+/**
+ * Builder for @{@link SearchFilter}
+ *
+ * @author valverde.thiago
+ */
 public class SearchFilterBuilder {
   private SearchOrder order;
   private SearchType type;

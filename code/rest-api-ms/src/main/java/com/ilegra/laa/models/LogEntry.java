@@ -8,6 +8,12 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+/**
+ * Entity that stores all log entries sent to the API.
+ * It's serialized to json to be sent to kafka input logs topic
+ *
+ * @author valverde.thiago
+ */
 public class LogEntry implements Serializable {
 
   private UUID id;

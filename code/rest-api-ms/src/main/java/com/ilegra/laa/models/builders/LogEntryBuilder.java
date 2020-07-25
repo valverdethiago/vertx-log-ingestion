@@ -6,6 +6,11 @@ import com.ilegra.laa.models.LogEntry;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * Builder for @{@link LogEntry}
+ *
+ * @author valverde.thiago
+ */
 public class LogEntryBuilder {
     private UUID id;
     private String url;

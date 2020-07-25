@@ -4,13 +4,17 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.ilegra.laa.config.ServerSettings;
 import com.ilegra.laa.service.HealthCheckService;
-import com.ilegra.laa.service.HealthCheckServiceImpl;
+import com.ilegra.laa.service.impl.HealthCheckServiceImpl;
 import com.ilegra.laa.service.MetricCacheService;
-import com.ilegra.laa.service.MetricCacheServiceImpl;
+import com.ilegra.laa.service.impl.MetricCacheServiceImpl;
 import io.vertx.core.Vertx;
-import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.redis.RedisOptions;
 
+/**
+ * Guice module configuration for the application
+ *
+ * @author valverde.thiago
+ */
 public class ServiceModule implements Module {
 
   private final ServerSettings settings;

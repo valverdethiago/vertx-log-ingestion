@@ -10,6 +10,10 @@ import com.zandero.settings.Settings;
 
 import java.util.List;
 
+/**
+ * Wrapper to store and load all configs
+ * @author valverde.thiago
+ */
 public class ServerSettings extends Settings {
 
   private static final String PORT = "port";

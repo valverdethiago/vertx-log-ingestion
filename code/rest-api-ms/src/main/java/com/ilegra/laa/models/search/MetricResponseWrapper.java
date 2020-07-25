@@ -10,6 +10,11 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Used to return values for the metrics searched on the endpoint /metrics
+ *
+ * @author valverde.thiago
+ */
 @JsonInclude(Include.NON_NULL)
 public class MetricResponseWrapper {
 

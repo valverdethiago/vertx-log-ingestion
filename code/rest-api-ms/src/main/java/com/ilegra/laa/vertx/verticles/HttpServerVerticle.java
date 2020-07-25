@@ -1,6 +1,7 @@
 package com.ilegra.laa.vertx.verticles;
 
 import com.ilegra.laa.injection.GuiceInjectionProvider;
+import com.ilegra.laa.models.exceptions.ValidationExceptionHandler;
 import com.ilegra.laa.service.HealthCheckService;
 import com.ilegra.laa.vertx.controllers.LogIngestionRestController;
 import com.ilegra.laa.vertx.controllers.MetricsRestController;
@@ -42,6 +43,7 @@ public class HttpServerVerticle extends AbstractVerticle {
         LogIngestionRestController.class,
         MetricsRestController.class,
         SimpleMetricsRestController.class)
+      .errorHandler(ValidationExceptionHandler.class)
       .build();
     router.get(API_PATH+"/health").handler(healthCheckService.createHealthCheckHandler());
 

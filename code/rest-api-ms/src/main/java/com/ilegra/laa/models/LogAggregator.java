@@ -9,6 +9,11 @@ import java.util.StringJoiner;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+/**
+ * Intermediary class to store values grouped to send to kafka streams
+ *
+ * @author valverde.thiago
+ */
 public class LogAggregator implements Serializable {
   private Set<LogEntry> urls;
   private Set<RankingEntry> ranking;
@@ -32,14 +37,14 @@ public class LogAggregator implements Serializable {
   }
 
   public void generateRanking() {
-    if(urls == null || urls.isEmpty()) {
+    if (urls == null || urls.isEmpty()) {
       return;
     }
     this.ranking =
       urls.stream()
         .collect(Collectors.groupingBy(LogEntry::getUrl, Collectors.counting()))
         .entrySet().stream().map(entry -> new RankingEntry(entry.getKey(), entry.getValue()))
-    .collect(Collectors.toSet());
+        .collect(Collectors.toSet());
   }
 
   public Long countUrls() {
