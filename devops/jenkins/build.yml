@@ -1,0 +1,39 @@
+version: '1.0'
+stages:
+  - prepare
+  - build
+steps:
+  main_clone:
+    title: 'Cloning main repository...'
+    type: git-clone
+    repo: 'codefresh-contrib/vm-packer-sample-app'
+    git: github
+    revision: 'master'
+    stage: prepare
+  SetupAuth:
+    title: 'Setup AWS Auth'
+    image: 'alpine'
+    stage: prepare
+    commands:
+      - echo $SERVICE_ACCOUNT > account.json
+  BuildMyApp:
+    title: Compiling App code
+    stage: build
+    image: 'openjdk:13'
+    commands:
+      - mvn clean install package -U   
+  CreatePackerImage:
+    title: Baking VM image
+    stage: build
+    image: 'hashicorp/packer'
+    commands:
+      - packer validate my-google-cloud-example.json
+      - packer build -force my-google-cloud-example.json
+  DeployToVM:
+    title: Deploying to VM
+    stage: deploy
+    image: 'google/cloud-sdk'
+    commands:
+      - gcloud auth activate-service-account --key-file=account.json
+      - gcloud config set project firstkubernetes-176201
+      - gcloud compute instances create packer-demo-codefresh --image codefresh-simple-ubuntu-vm --zone europe-west1-b --metadata-from-file startup-script=startup.sh --tags http-server --preemptible --quiet

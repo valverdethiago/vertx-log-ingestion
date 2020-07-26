@@ -1,6 +1,26 @@
 # LAA Rest API
 
-## Eclipse Vert.x
+The code was develop using [IntelliJ IDEA](https://www.jetbrains.com/idea/), using [maven](https://maven.apache.org/) as build and depencency management tool and the following libraries and its dependencies:
+* [Eclipse Vert.x](https://vertx.io/) - Non blocking event based toolkit;
+* [vertx-health-chek](https://vertx.io/docs/vertx-health-check/java/) - Component that provides a simple way to expose healh checks on vert.x applications;
+* [vertx-redis-clitn](https://vertx.io/docs/vertx-redis-client/java/) - Vert.x module that allows data to be saved, retrieved, searched for, and deleted in Redis;
+* [logback](http://logback.qos.ch/) Popular logging library for java projects
+* [Kafka Streams](https://kafka.apache.org/documentation/streams/) - Client library for build applications and microservices, where the input and output data are stored in kafka clusters;
+* [Zandero Rest Vert.x](https://github.com/zandero/rest.vertx) - Lightweigth JAX-RS (RestEasy) like annotation processor for Vert.x verticles
+* [Intapp Vertx Guice](https://github.com/intappx/vertx-guice) - Enable verticle dependency injection in Vert.x using [Guice](https://github.com/google/guice)
+* [jersey-server](https://eclipse-ee4j.github.io/jersey/) - JAX-RS implementation
+* [Guice](https://github.com/google/guice) - Dependency Injection framework
+* [vertx-hazelcast](https://vertx.io/docs/vertx-hazelcast/java/) - Cluster manager 
+
+
+
+
+
+
+
+
+
+## Eclipse Vert.x 
 
 Eclipse Vert.x, which we will just call vertx) is an opersource project at the Eclipse foundation. 
 
