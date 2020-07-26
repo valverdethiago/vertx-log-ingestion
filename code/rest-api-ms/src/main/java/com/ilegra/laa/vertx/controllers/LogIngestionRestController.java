@@ -22,13 +22,27 @@ import java.util.regex.Pattern;
 
 import static com.ilegra.laa.vertx.verticles.HttpServerVerticle.API_PATH;
 
+/**
+ * API Endpoint for log ingestion
+ *
+ * @author valverde.thiago
+ */
 @Path(API_PATH+"/ingest")
 public class LogIngestionRestController {
 
   private final static Logger LOG = LoggerFactory.getLogger(LogIngestionRestController.class);
 
+  /**
+   * Regex expression to validate urls
+   */
   private static String VALID_URL_REGEX = "(/.+)+\\s(\\d+)\\s([\\w\\-?]+)\\s([1-3])";
+  /**
+   * Regex expression to replace ids on url
+   */
   private static String REPLACE_IDS_IN_URL_REGEX = "(?<=/)\\d+(?=/?)";
+  /**
+   * Expression used to replace ids on url
+   */
   private static String ID_REPLACEMENT = "{id}";
 
   @POST

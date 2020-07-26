@@ -1,5 +1,6 @@
 package com.ilegra.laa.vertx.verticles;
 
+import com.ilegra.laa.config.ServerSettings;
 import com.ilegra.laa.injection.GuiceInjectionProvider;
 import com.ilegra.laa.models.exceptions.ValidationExceptionHandler;
 import com.ilegra.laa.service.HealthCheckService;
@@ -7,10 +8,8 @@ import com.ilegra.laa.vertx.controllers.LogIngestionRestController;
 import com.ilegra.laa.vertx.controllers.MetricsRestController;
 import com.ilegra.laa.vertx.controllers.SimpleMetricsRestController;
 import com.zandero.rest.RestBuilder;
-import com.ilegra.laa.config.ServerSettings;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.ext.healthchecks.HealthCheckHandler;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.slf4j.Logger;
@@ -18,6 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 
+/**
+ * Verticle to configure the http server
+ *
+ * @author valverde.thiago
+ */
 public class HttpServerVerticle extends AbstractVerticle {
 
   public static final String API_PATH = "/laa";

@@ -45,9 +45,6 @@ public class MetricResponseWrapper {
     this.rankingEntries = rankingEntries;
   }
 
-  public void setGroupedRankingEntries(List<GroupedRankingEntry> groupedRankingEntries) {
-    this.groupedRankingEntries = groupedRankingEntries;
-  }
 
   @JsonIgnore
   public boolean isEmpty() {

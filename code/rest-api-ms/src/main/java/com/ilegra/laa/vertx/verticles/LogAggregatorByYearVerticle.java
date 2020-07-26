@@ -12,14 +12,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Verticle that produces aggregation by year and url
+ *
+ * @author valverde.thiago
+ */
 public class LogAggregatorByYearVerticle extends AbstractLogAggregatorVerticle {
 
   private final static DateFormat DATE_FORMAT = new SimpleDateFormat(DatePattern.YEAR.getPattern());
 
   @Inject
-  public LogAggregatorByYearVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
-    super(healthCheckService,
-      settings,
+  public LogAggregatorByYearVerticle(ServerSettings settings) {
+    super(settings,
       MetricGroupType.GROUP_BY_YEAR,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_YEAR_OUTPUT);

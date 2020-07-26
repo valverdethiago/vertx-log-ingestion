@@ -21,28 +21,50 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.Properties;
 
+/**
+ * Abstract verticle to reduce boilerplate code in aggregation process with Kafka Streams
+ * @param <T> Type to be serialized at the end of aggregation process
+ *
+ * @author valverde.thiago
+ */
 public abstract class AbstractLogStreamVerticle<T extends Serializable> extends AbstractVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(AbstractLogStreamVerticle.class);
 
   protected final ServerSettings settings;
+  /**
+   * Id for the grouping process
+   */
   protected final MetricGroupType metricGroupType;
+  /**
+   * Topic to be consumed and start the aggregation process
+   */
   protected final KafkaTopic inputTopicName;
+  /**
+   * Topic to be ingested with final aggregation information
+   */
   protected final KafkaTopic outputTopicName;
+  /**
+   * Default deserializer class for the type being sent to output topic
+   */
   protected final Class<? extends Deserializer<T>> deserializerClass;
-  private final HealthCheckService healthCheckService;
 
+  /**
+   * Kafka Streams to be started within the verticle
+   */
   private KafkaStreams streams;
+  /**
+   * Kafka Consumer to be listening to the output topic to deliver the final result of aggregation process
+   */
   private KafkaConsumer<String, T> consumer;
 
 
-  public AbstractLogStreamVerticle(HealthCheckService healthCheckService,
-                                   ServerSettings settings,
+
+  public AbstractLogStreamVerticle(ServerSettings settings,
                                    MetricGroupType metricGroupType,
                                    KafkaTopic inputTopicName,
                                    KafkaTopic outputTopicName,
                                    Class<? extends Deserializer<T>> deserializerClass) {
-    this.healthCheckService = healthCheckService;
     this.settings = settings;
     this.metricGroupType = metricGroupType;
     this.inputTopicName = inputTopicName;
@@ -57,7 +79,12 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     this.startConsumer(startPromise);
   }
 
-  public void startStreams(Promise<Void> startPromise) throws Exception {
+  /**
+   * Starts streaming process from the input kafka topic
+   *
+   * @param startPromise global vertical promise
+   */
+  public void startStreams(Promise<Void> startPromise) {
     //starting streams can take a while, therefore we do it asynchronously
     vertx.<KafkaStreams>executeBlocking(future -> {
       // Configure the Streams application
@@ -80,6 +107,11 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     });
   }
 
+  /**
+   * Starts the consumer of output topic to deliver the metrics update to the final target
+   *
+   * @param startPromise global verticle promise
+   */
   private void startConsumer(Promise<Void> startPromise) {
     vertx.<KafkaStreams>executeBlocking(future -> {
       consumer = KafkaConsumer.create(vertx, this.getConsumerConfiguration());
@@ -120,6 +152,11 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     });
   }
 
+  /**
+   * Handler method that deliveries metrics updates to the event bus
+   *
+   * @param record
+   */
   private void handleMetricUpdates(KafkaConsumerRecord<String, T> record) {
     LOG.debug("Processing topic = {}, key= {},value= {}, partition = {}, offset = {}", this.outputTopicName.name(),
       record.key(), record.value(), record.partition(), record.offset());
@@ -131,7 +168,6 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
    * Configure the Streams application.
    * <p>
    * Various Kafka Streams related settings are defined here such as the location of the target Kafka cluster to use.
-   * Additionally, you could also define Kafka Producer and Kafka Consumer settings when needed.
    *
    * @return Properties getStreamsConfiguration
    */
@@ -155,6 +191,11 @@ public abstract class AbstractLogStreamVerticle<T extends Serializable> extends 
     return config;
   }
 
+  /**
+   * Configure the Consumer application.
+   *
+   * @return Properties getConsumerConfiguration
+   */
   private Properties getConsumerConfiguration() {
     final Properties config = new Properties();
     config.put("bootstrap.servers", settings.getKafkaServer());

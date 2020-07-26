@@ -1,10 +1,9 @@
 package com.ilegra.laa.vertx.verticles;
 
+import com.ilegra.laa.config.ServerSettings;
 import com.ilegra.laa.models.KafkaTopic;
 import com.ilegra.laa.models.LogEntry;
 import com.ilegra.laa.models.MetricGroupType;
-import com.ilegra.laa.config.ServerSettings;
-import com.ilegra.laa.service.HealthCheckService;
 
 import javax.inject.Inject;
 import java.time.ZoneId;
@@ -12,11 +11,17 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+
+/**
+ * Verticle that produces aggregation by week and url
+ *
+ * @author valverde.thiago
+ */
 public class LogAggregatorByWeekVerticle extends AbstractLogAggregatorVerticle {
 
   @Inject
-  public LogAggregatorByWeekVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
-    super(healthCheckService,
+  public LogAggregatorByWeekVerticle(ServerSettings settings) {
+    super(
       settings,
       MetricGroupType.GROUP_BY_WEEK,
       KafkaTopic.LOGS_INPUT,

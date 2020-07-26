@@ -9,6 +9,12 @@ import io.vertx.core.eventbus.Message;
 
 import javax.inject.Inject;
 
+
+/**
+ * Verticle that consumes grouped metric updates from event bus and send them to redis cache service
+ *
+ * @author valverde.thiago
+ */
 public class GroupedMetricUpdateEventListenerVerticle extends AbstractVerticle {
 
   private final MetricCacheService metricCacheService;

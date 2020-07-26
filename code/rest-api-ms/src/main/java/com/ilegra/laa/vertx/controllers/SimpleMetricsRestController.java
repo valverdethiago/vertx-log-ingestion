@@ -15,6 +15,11 @@ import javax.ws.rs.core.Response;
 
 import static com.ilegra.laa.vertx.verticles.HttpServerVerticle.API_PATH;
 
+/**
+ * Internal controller to check all metrics without specifying a filter
+ *
+ * @author valverde.thiago
+ */
 @Path(API_PATH+"/metrics-status")
 public class SimpleMetricsRestController {
   @Inject

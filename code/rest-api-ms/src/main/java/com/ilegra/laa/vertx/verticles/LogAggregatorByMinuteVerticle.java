@@ -1,13 +1,12 @@
 package com.ilegra.laa.vertx.verticles;
 
+import com.ilegra.laa.config.ServerSettings;
 import com.ilegra.laa.models.*;
 import com.ilegra.laa.models.ranking.RankingEntry;
 import com.ilegra.laa.serialization.LogAggregatorSerde;
 import com.ilegra.laa.serialization.LogEntrySerde;
 import com.ilegra.laa.serialization.RankingEntryDeserializer;
 import com.ilegra.laa.serialization.RankingEntrySerde;
-import com.ilegra.laa.config.ServerSettings;
-import com.ilegra.laa.service.HealthCheckService;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -20,14 +19,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Verticle that produces aggregation by minute
+ *
+ * @author valverde.thiago
+ */
 public class LogAggregatorByMinuteVerticle extends AbstractLogStreamVerticle<RankingEntry> {
 
   private final static DateFormat DATE_FORMAT = new SimpleDateFormat(DatePattern.MINUTE.getPattern());
 
   @Inject
-  public LogAggregatorByMinuteVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
-    super(healthCheckService,
-      settings,
+  public LogAggregatorByMinuteVerticle(ServerSettings settings) {
+    super(settings,
       MetricGroupType.GROUP_BY_MINUTE,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_MINUTE_OUTPUT,

@@ -25,12 +25,26 @@ import java.util.regex.Pattern;
 
 import static com.ilegra.laa.vertx.verticles.HttpServerVerticle.API_PATH;
 
+/**
+ * API endpoint to handle metrics search
+ *
+ * @author valverde.thiago
+ */
 @Path(API_PATH+"/metrics")
 public class MetricsRestController {
 
+  /**
+   * Default search result limit
+   */
   private static final Long DEFAULT_SEARCH_SIZE = 3L;
+  /**
+   * Regex to validate week expressions
+   */
   private static String VALID_WEEK_REGEX = "(\\d{1,4})-(\\d{1,2})";
 
+  /**
+   * Injected service of metrics cache
+   */
   @Inject
   private MetricCacheService metricCacheService;
 

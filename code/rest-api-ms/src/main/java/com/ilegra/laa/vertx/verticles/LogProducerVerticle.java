@@ -19,6 +19,11 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Verticle that consumes log entries from event bus and send it to kafka input log topic
+ *
+ * @author valverde.thiago
+ */
 public class LogProducerVerticle extends AbstractVerticle {
 
   private final static Logger LOG = LoggerFactory.getLogger(LogProducerVerticle.class);

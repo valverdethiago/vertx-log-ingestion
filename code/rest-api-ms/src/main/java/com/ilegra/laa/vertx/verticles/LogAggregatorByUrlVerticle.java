@@ -19,12 +19,16 @@ import org.apache.kafka.streams.kstream.Produced;
 
 import javax.inject.Inject;
 
+/**
+ * Verticle that produces aggregation by url
+ *
+ * @author valverde.thiago
+ */
 public class LogAggregatorByUrlVerticle extends AbstractLogStreamVerticle<RankingEntry> {
 
   @Inject
-  public LogAggregatorByUrlVerticle(HealthCheckService healthCheckService, ServerSettings settings) {
-    super(healthCheckService,
-      settings,
+  public LogAggregatorByUrlVerticle(ServerSettings settings) {
+    super(settings,
       MetricGroupType.GROUP_BY_URL,
       KafkaTopic.LOGS_INPUT,
       KafkaTopic.LOGS_GROUP_BY_URL_OUTPUT,

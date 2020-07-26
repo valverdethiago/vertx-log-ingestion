@@ -1,12 +1,17 @@
 package com.ilegra.laa.vertx.codecs;
 
-import com.ilegra.laa.models.ranking.RankingEntry;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.Json;
 
 import java.io.Serializable;
 
+/**
+ * Generic Vert.x codec for de(serialization) of POJO's in json format
+ * @param <T> Type to be (de)serialized
+ *
+ * @author valverde.thiago
+ */
 public class JsonPojoCodec<T extends Serializable> implements MessageCodec<T, T> {
 
   private final Class<T> clazz;
