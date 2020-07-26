@@ -2,6 +2,9 @@
 
 This document provides a step-by-step manual to run the backend for the LAA along all other services.
 
+## Disclaimer
+**I knew that usage of Docker is not allowed, but I chose it just for simplicity to demo this app. There's no need to setup a kafka cluster and Redis instance on AWS just to create a full topology and execute all the features end to end.**
+
 ## Prerequisites
 To be able to run this you must have linux or windows pc with:
  * java 13 or superior
